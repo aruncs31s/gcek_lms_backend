@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificate of Completion</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Montserrat:wght@400;500;600&display=swap');
+        
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f7f9fc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .certificate-wrapper {
+            width: 1050px; /* A4 Landscape rough approx */
+            height: 740px;
+            background: white;
+            padding: 40px;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .certificate-inner {
+            border: 5px double #1E293B;
+            width: 100%;
+            height: 100%;
+            padding: 40px;
+            box-sizing: border-box;
+            text-align: center;
+            position: relative;
+            background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+        }
+
+        .brand {
+            font-family: 'Cinzel', serif;
+            font-size: 28px;
+            color: #6366F1;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+        }
+
+        h1 {
+            font-family: 'Cinzel', serif;
+            color: #1E293B;
+            font-size: 52px;
+            margin: 10px 0 30px;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+        }
+
+        .presented-to {
+            font-size: 18px;
+            color: #64748B;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+        }
+
+        .student-name {
+            font-family: 'Cinzel', serif;
+            font-size: 46px;
+            color: #0F172A;
+            border-bottom: 2px solid #CBD5E1;
+            padding-bottom: 10px;
+            margin: 0 100px 30px;
+            font-weight: 700;
+        }
+
+        .for-completing {
+            font-size: 18px;
+            color: #64748B;
+            margin-bottom: 20px;
+        }
+
+        .course-name {
+            font-size: 32px;
+            color: #334155;
+            font-weight: 600;
+            margin-bottom: 60px;
+        }
+
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: auto;
+            position: absolute;
+            bottom: 60px;
+            left: 100px;
+            right: 100px;
+        }
+
+        .signature-block {
+            text-align: center;
+        }
+
+        .signature {
+            font-family: 'Brush Script MT', cursive;
+            font-size: 32px;
+            color: #0F172A;
+            border-bottom: 1px solid #94A3B8;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+            min-width: 250px;
+        }
+
+        .date {
+            border-bottom: 1px solid #94A3B8;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+            min-width: 200px;
+            font-size: 20px;
+            color: #0F172A;
+        }
+
+        .label {
+            font-size: 14px;
+            color: #64748B;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .badge {
+            position: absolute;
+            top: 50px;
+            right: 50px;
+            width: 100px;
+            height: 100px;
+            background: #F1F5F9;
+            border-radius: 50%;
+            border: 2px dashed #CBD5E1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #94A3B8;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="certificate-wrapper" id="certificate">
+        <div class="certificate-inner">
+            <div class="badge">ESDC<br>Verified</div>
+            <div class="brand">ESDC Learning Management System</div>
+            <h1>Certificate of Completion</h1>
+            
+            <div class="presented-to">This is proudly presented to</div>
+            <div class="student-name">{{.StudentName}}</div>
+            
+            <div class="for-completing">For successfully completing the course</div>
+            <div class="course-name">{{.CourseName}}</div>
+
+            <div class="footer">
+                <div class="signature-block">
+                    <div class="date">{{.DateIssued}}</div>
+                    <div class="label">Date</div>
+                </div>
+                <div class="signature-block">
+                    <div class="signature">{{.TeacherName}}</div>
+                    <div class="label">Instructor</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
