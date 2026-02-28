@@ -3,21 +3,25 @@ package dto
 import "time"
 
 type CreateCourseRequest struct {
-	Title        string  `json:"title" validate:"required"`
-	Description  string  `json:"description"`
-	ThumbnailURL string  `json:"thumbnail_url"`
-	Price        float64 `json:"price" validate:"gte=0"`
-	Type         string  `json:"type" validate:"omitempty,oneof=free paid"`
-	Status       string  `json:"status" validate:"omitempty,oneof='not started' active ended"`
+	Title        string     `json:"title" validate:"required"`
+	Description  string     `json:"description"`
+	ThumbnailURL string     `json:"thumbnail_url"`
+	Price        float64    `json:"price" validate:"gte=0"`
+	Type         string     `json:"type" validate:"omitempty,oneof=free paid"`
+	Status       string     `json:"status" validate:"omitempty,oneof='coming soon' active ended"`
+	Duration     string     `json:"duration"`
+	StartDate    *time.Time `json:"start_date"`
 }
 
 type UpdateCourseRequest struct {
-	Title        *string  `json:"title"`
-	Description  *string  `json:"description"`
-	ThumbnailURL *string  `json:"thumbnail_url"`
-	Price        *float64 `json:"price" validate:"omitempty,gte=0"`
-	Type         *string  `json:"type" validate:"omitempty,oneof=free paid"`
-	Status       *string  `json:"status" validate:"omitempty,oneof='not started' active ended"`
+	Title        *string    `json:"title"`
+	Description  *string    `json:"description"`
+	ThumbnailURL *string    `json:"thumbnail_url"`
+	Price        *float64   `json:"price" validate:"omitempty,gte=0"`
+	Type         *string    `json:"type" validate:"omitempty,oneof=free paid"`
+	Status       *string    `json:"status" validate:"omitempty,oneof='coming soon' active ended"`
+	Duration     *string    `json:"duration"`
+	StartDate    *time.Time `json:"start_date"`
 }
 
 type CourseResponse struct {
@@ -32,6 +36,9 @@ type CourseResponse struct {
 	Price         float64          `json:"price"`
 	Type          string           `json:"type"`
 	Status        string           `json:"status"`
+	Duration      string           `json:"duration,omitempty"`
+	StartDate     *time.Time       `json:"start_date,omitempty"`
+	Progress      float64          `json:"progress,omitempty"`
 	CreatedAt     time.Time        `json:"created_at"`
 	StudentCount  int              `json:"student_count"`
 	LikesCount    int64            `json:"likes_count"`

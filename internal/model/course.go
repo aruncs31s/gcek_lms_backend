@@ -8,14 +8,16 @@ import (
 )
 
 type Course struct {
-	ID           uuid.UUID `gorm:"type:uuid;default:gen_random_uuid();primaryKey"`
-	TeacherID    uuid.UUID `gorm:"type:uuid;not null;index"`
-	Title        string    `gorm:"type:varchar(255);not null"`
-	Description  string    `gorm:"type:text"`
-	ThumbnailURL string    `gorm:"type:varchar(255)"`
-	Price        float64   `gorm:"type:decimal(10,2);default:0"`
-	Type         string    `gorm:"type:varchar(50);default:'paid'"`        // free, paid
-	Status       string    `gorm:"type:varchar(50);default:'not started'"` // not started, ended, active
+	ID           uuid.UUID  `gorm:"type:uuid;default:gen_random_uuid();primaryKey"`
+	TeacherID    uuid.UUID  `gorm:"type:uuid;not null;index"`
+	Title        string     `gorm:"type:varchar(255);not null"`
+	Description  string     `gorm:"type:text"`
+	ThumbnailURL string     `gorm:"type:varchar(255)"`
+	Price        float64    `gorm:"type:decimal(10,2);default:0"`
+	Type         string     `gorm:"type:varchar(50);default:'paid'"`        // free, paid
+	Status       string     `gorm:"type:varchar(50);default:'coming soon'"` // coming soon, active, ended
+	Duration     string     `gorm:"type:varchar(255)"`
+	StartDate    *time.Time `gorm:"type:timestamp"`
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 	DeletedAt    gorm.DeletedAt `gorm:"index"`

@@ -39,6 +39,8 @@ func ConnectDB(cfg *config.Config) (*gorm.DB, error) {
 		&model.Certificate{},
 		&model.Assignment{},
 		&model.AssignmentSubmission{},
+		&model.CodingAssignment{},
+		&model.CodingSubmission{},
 		&model.Notification{},
 		&model.Achievement{},
 	)

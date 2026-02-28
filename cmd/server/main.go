@@ -35,6 +35,7 @@ func main() {
 	chatRepo := repository.NewChatRepository(db)
 	assignmentRepo := repository.NewAssignmentRepository(db)
 	notificationRepo := repository.NewNotificationRepository(db)
+	codingRepo := repository.NewCodingRepository(db)
 
 	// Initialize Certificate Orchestrator
 	orchestrator := certgen.NewOrchestrator("pkg/certgen/templates", "uploads/certificates")
@@ -65,6 +66,8 @@ func main() {
 	leaderboardHandler := handler.NewLeaderboardHandler(userRepo)
 	assignmentHandler := handler.NewAssignmentHandler(assignmentService)
 	notificationHandler := handler.NewNotificationHandler(notificationService)
+	codingService := service.NewCodingService(codingRepo, courseRepo)
+	codingHandler := handler.NewCodingHandler(codingService)
 
 	fmt.Printf("Starting ESDC LMS Backend on port %s...\n", cfg.ServerPort)
 
@@ -141,6 +144,13 @@ func main() {
 				teacherCourses.DELETE("/:id/assignments/:assignmentId", assignmentHandler.DeleteAssignment)
 				teacherCourses.GET("/:id/assignments/:assignmentId/submissions", assignmentHandler.GetSubmissions)
 				teacherCourses.PUT("/:id/assignments/:assignmentId/submissions/:submissionId/grade", assignmentHandler.GradeSubmission)
+
+				// Coding Assignment Teacher routes
+				teacherCourses.POST("/:id/coding-assignments", codingHandler.CreateCodingAssignment)
+				teacherCourses.PUT("/:id/coding-assignments/:codingAssignmentId", codingHandler.UpdateCodingAssignment)
+				teacherCourses.DELETE("/:id/coding-assignments/:codingAssignmentId", codingHandler.DeleteCodingAssignment)
+				teacherCourses.GET("/:id/coding-assignments/:codingAssignmentId/submissions", codingHandler.GetSubmissions)
+				teacherCourses.PUT("/:id/coding-assignments/:codingAssignmentId/submissions/:submissionId/grade", codingHandler.GradeSubmission)
 			}
 
 			// Assignment general routes (for Enrolled and Teachers)
@@ -148,6 +158,19 @@ func main() {
 			protectedCourses.GET("/:id/assignments/:assignmentId", assignmentHandler.GetAssignmentByID)
 			protectedCourses.GET("/:id/assignments/:assignmentId/submissions/me", assignmentHandler.GetStudentSubmission)
 			protectedCourses.POST("/:id/assignments/:assignmentId/submit", assignmentHandler.SubmitAssignment)
+
+			// Coding Assignment general routes (students + teachers)
+			protectedCourses.GET("/:id/coding-assignments", codingHandler.GetCodingAssignments)
+			protectedCourses.GET("/:id/coding-assignments/:codingAssignmentId", codingHandler.GetCodingAssignmentByID)
+			protectedCourses.POST("/:id/coding-assignments/:codingAssignmentId/submit", codingHandler.SubmitCode)
+			protectedCourses.GET("/:id/coding-assignments/:codingAssignmentId/submissions/me", codingHandler.GetMySubmission)
+		}
+
+		// Code Execution (free sandbox - auth required)
+		codeRun := api.Group("/code")
+		codeRun.Use(authMw)
+		{
+			codeRun.POST("/run", codingHandler.RunCode)
 		}
 
 		// Upload Routes

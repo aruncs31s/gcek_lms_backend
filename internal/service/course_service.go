@@ -50,6 +50,8 @@ func (s *courseService) CreateCourse(teacherID uuid.UUID, req *dto.CreateCourseR
 		Price:        req.Price,
 		Type:         req.Type,
 		Status:       req.Status,
+		Duration:     req.Duration,
+		StartDate:    req.StartDate,
 	}
 
 	if course.Type == "" {
@@ -123,6 +125,12 @@ func (s *courseService) UpdateCourse(id uuid.UUID, teacherID uuid.UUID, req *dto
 	}
 	if req.Status != nil {
 		course.Status = *req.Status
+	}
+	if req.Duration != nil {
+		course.Duration = *req.Duration
+	}
+	if req.StartDate != nil {
+		course.StartDate = req.StartDate
 	}
 
 	if err := s.courseRepo.UpdateCourse(course); err != nil {
@@ -402,6 +410,8 @@ func (s *courseService) mapToCourseResponse(course *model.Course, userID uuid.UU
 		Price:         course.Price,
 		Type:          course.Type,
 		Status:        course.Status,
+		Duration:      course.Duration,
+		StartDate:     course.StartDate,
 		CreatedAt:     course.CreatedAt,
 		StudentCount:  len(course.Enrollments),
 		LikesCount:    likesCount,
@@ -442,6 +452,18 @@ func (s *courseService) mapToCourseResponse(course *model.Course, userID uuid.UU
 				IsCompleted: completedModules[m.ID],
 			})
 		}
+
+		// calculate basic progress
+		completedCount := 0
+		for _, v := range completedModules {
+			if v {
+				completedCount++
+			}
+		}
+		if len(course.Modules) > 0 {
+			resp.Progress = float64(completedCount) / float64(len(course.Modules)) * 100
+		}
+
 		resp.Modules = modResp
 	}
 
