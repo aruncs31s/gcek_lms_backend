@@ -42,6 +42,7 @@ type Message struct {
 	ConversationID uuid.UUID `gorm:"type:uuid;not null;index"`
 	SenderID       uuid.UUID `gorm:"type:uuid;not null;index"`
 	Content        string    `gorm:"type:text;not null"`
+	AttachmentURL  *string   `gorm:"type:varchar(255)"`
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
 }

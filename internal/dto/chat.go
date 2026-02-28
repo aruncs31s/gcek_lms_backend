@@ -22,5 +22,6 @@ type MessageResponse struct {
 	ConversationID string    `json:"conversation_id"`
 	SenderID       string    `json:"sender_id"`
 	Content        string    `json:"content"`
+	AttachmentURL  *string   `json:"attachment_url,omitempty"`
 	CreatedAt      time.Time `json:"created_at"`
 }

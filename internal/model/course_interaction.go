@@ -15,6 +15,8 @@ type CourseReview struct {
 	Comment   string    `gorm:"type:text"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
+
+	User User `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 func (cr *CourseReview) BeforeCreate(tx *gorm.DB) (err error) {

@@ -28,6 +28,9 @@ type CourseService interface {
 	LikeCourse(courseID uuid.UUID, userID uuid.UUID) error
 	UnlikeCourse(courseID uuid.UUID, userID uuid.UUID) error
 	GetTrendingCourses(limit int, userID uuid.UUID) ([]dto.CourseResponse, error)
+
+	AddReview(courseID uuid.UUID, userID uuid.UUID, req *dto.CreateCourseReviewRequest) (*dto.CourseReviewResponse, error)
+	GetReviews(courseID uuid.UUID) ([]dto.CourseReviewResponse, error)
 }
 
 type courseService struct {
@@ -443,4 +446,66 @@ func (s *courseService) mapToCourseResponse(course *model.Course, userID uuid.UU
 	}
 
 	return resp
+}
+
+func (s *courseService) AddReview(courseID uuid.UUID, userID uuid.UUID, req *dto.CreateCourseReviewRequest) (*dto.CourseReviewResponse, error) {
+	// Let's assume anyone who is enrolled or has completed can review, or for MVP anyone logged in can review
+	// We'll just allow it if course exists.
+	course, err := s.courseRepo.GetCourseByID(courseID)
+	if err != nil {
+		return nil, err
+	}
+	if course == nil {
+		return nil, errors.New("course not found")
+	}
+
+	review := &model.CourseReview{
+		CourseID: courseID,
+		UserID:   userID,
+		Rating:   req.Rating,
+		Comment:  req.Comment,
+	}
+
+	if err := s.courseRepo.CreateReview(review); err != nil {
+		return nil, err
+	}
+
+	// We don't have user info loaded in this object immediately without a refetch,
+	// but we can return basic for now or refetch the reviews list.
+	// For simplicity, we just return the basics. The frontend will likely reload reviews.
+	return &dto.CourseReviewResponse{
+		ID:        review.ID.String(),
+		CourseID:  review.CourseID.String(),
+		UserID:    review.UserID.String(),
+		Rating:    review.Rating,
+		Comment:   review.Comment,
+		CreatedAt: review.CreatedAt,
+	}, nil
+}
+
+func (s *courseService) GetReviews(courseID uuid.UUID) ([]dto.CourseReviewResponse, error) {
+	reviews, err := s.courseRepo.GetReviewsByCourseID(courseID)
+	if err != nil {
+		return nil, err
+	}
+
+	var res []dto.CourseReviewResponse
+	for _, r := range reviews {
+		res = append(res, dto.CourseReviewResponse{
+			ID:        r.ID.String(),
+			CourseID:  r.CourseID.String(),
+			UserID:    r.UserID.String(),
+			UserName:  r.User.Profile.FirstName + " " + r.User.Profile.LastName,
+			AvatarURL: r.User.Profile.AvatarURL,
+			Rating:    r.Rating,
+			Comment:   r.Comment,
+			CreatedAt: r.CreatedAt,
+		})
+	}
+
+	if res == nil {
+		res = []dto.CourseReviewResponse{}
+	}
+
+	return res, nil
 }

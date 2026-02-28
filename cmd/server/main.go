@@ -108,6 +108,7 @@ func main() {
 			courses.GET("", courseHandler.GetAllCourses)
 			courses.GET("/trending", courseHandler.GetTrendingCourses)
 			courses.GET("/:id", courseHandler.GetCourseByID)
+			courses.GET("/:id/reviews", courseHandler.GetReviews)
 		}
 
 		protectedCourses := api.Group("/courses") // Recreate without optAuthMw to prevent duplicate middleware runs
@@ -118,6 +119,7 @@ func main() {
 			protectedCourses.POST("/:id/enroll", courseHandler.EnrollCourse)
 			protectedCourses.GET("/:id/enrollment", courseHandler.GetEnrollmentStatus)
 			protectedCourses.POST("/:id/modules/:moduleId/complete", courseHandler.CompleteModule)
+			protectedCourses.POST("/:id/reviews", courseHandler.AddReview)
 
 			// Teacher only
 			teacherCourses := protectedCourses.Group("")
@@ -155,6 +157,7 @@ func main() {
 		{
 			upload.POST("/video", teacherAdminMw, uploadHandler.UploadVideo)
 			upload.POST("/image", uploadHandler.UploadImage)
+			upload.POST("/attachment", uploadHandler.UploadAttachment)
 		}
 
 		// Certificate Routes

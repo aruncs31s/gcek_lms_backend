@@ -75,3 +75,19 @@ type ModuleResponse struct {
 	OrderIndex  int     `json:"order_index"`
 	IsCompleted bool    `json:"is_completed"`
 }
+
+type CreateCourseReviewRequest struct {
+	Rating  int    `json:"rating" validate:"required,min=1,max=5"`
+	Comment string `json:"comment" validate:"required"`
+}
+
+type CourseReviewResponse struct {
+	ID        string    `json:"id"`
+	CourseID  string    `json:"course_id"`
+	UserID    string    `json:"user_id"`
+	UserName  string    `json:"user_name"`
+	AvatarURL string    `json:"avatar_url"`
+	Rating    int       `json:"rating"`
+	Comment   string    `json:"comment"`
+	CreatedAt time.Time `json:"created_at"`
+}

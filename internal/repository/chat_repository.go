@@ -12,6 +12,7 @@ type ChatRepository interface {
 	CreateMessage(msg *model.Message) error
 	GetMessagesByConversationID(convID uuid.UUID) ([]model.Message, error)
 	IsParticipant(convID, userID uuid.UUID) bool
+	EnsureConversationExists(convID uuid.UUID) error
 }
 
 type chatRepository struct {
@@ -45,8 +46,38 @@ func (r *chatRepository) GetMessagesByConversationID(convID uuid.UUID) ([]model.
 	return msgs, err
 }
 
+func (r *chatRepository) EnsureConversationExists(convID uuid.UUID) error {
+	var count int64
+	r.db.Model(&model.Conversation{}).Where("id = ?", convID).Count(&count)
+	if count == 0 {
+		return r.db.Create(&model.Conversation{
+			ID:   convID,
+			Type: model.ConversationTypeGroup,
+		}).Error
+	}
+	return nil
+}
+
 func (r *chatRepository) IsParticipant(convID, userID uuid.UUID) bool {
 	var count int64
+
+	// First check if the user is enrolled in the course with this ID
+	r.db.Model(&model.Enrollment{}).
+		Where("course_id = ? AND user_id = ?", convID, userID).
+		Count(&count)
+	if count > 0 {
+		return true
+	}
+
+	// Then check if the user is the teacher of the course with this ID
+	r.db.Model(&model.Course{}).
+		Where("id = ? AND teacher_id = ?", convID, userID).
+		Count(&count)
+	if count > 0 {
+		return true
+	}
+
+	// Fallback to chat participant check
 	r.db.Model(&model.ConversationParticipant{}).
 		Where("conversation_id = ? AND user_id = ?", convID, userID).
 		Count(&count)

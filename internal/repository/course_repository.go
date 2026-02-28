@@ -36,6 +36,9 @@ type CourseRepository interface {
 	GetCourseLikesCount(courseID uuid.UUID) (int64, error)
 	GetTrendingCourses(limit int) ([]model.Course, error)
 	AddPointsToProfile(userID uuid.UUID, points int) error
+
+	CreateReview(review *model.CourseReview) error
+	GetReviewsByCourseID(courseID uuid.UUID) ([]model.CourseReview, error)
 }
 
 type courseRepository struct {
@@ -207,4 +210,14 @@ func (r *courseRepository) GetTrendingCourses(limit int) ([]model.Course, error)
 		Find(&courses).Error
 
 	return courses, err
+}
+
+func (r *courseRepository) CreateReview(review *model.CourseReview) error {
+	return r.db.Create(review).Error
+}
+
+func (r *courseRepository) GetReviewsByCourseID(courseID uuid.UUID) ([]model.CourseReview, error) {
+	var reviews []model.CourseReview
+	err := r.db.Preload("User.Profile").Where("course_id = ?", courseID).Order("created_at desc").Find(&reviews).Error
+	return reviews, err
 }

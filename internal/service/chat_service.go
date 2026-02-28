@@ -105,8 +105,9 @@ func (h *ChatHub) ServeWS(w http.ResponseWriter, r *http.Request, userID uuid.UU
 
 		for {
 			var msgPayload struct {
-				ConversationID string `json:"conversation_id"`
-				Content        string `json:"content"`
+				ConversationID string  `json:"conversation_id"`
+				Content        string  `json:"content"`
+				AttachmentURL  *string `json:"attachment_url,omitempty"`
 			}
 			err := conn.ReadJSON(&msgPayload)
 			if err != nil {
@@ -130,6 +131,12 @@ func (h *ChatHub) ServeWS(w http.ResponseWriter, r *http.Request, userID uuid.UU
 				ConversationID: convID,
 				SenderID:       userID,
 				Content:        msgPayload.Content,
+				AttachmentURL:  msgPayload.AttachmentURL,
+			}
+
+			if err := h.repo.EnsureConversationExists(convID); err != nil {
+				log.Println("Failed to ensure conversation exists:", err)
+				continue
 			}
 
 			if err := h.repo.CreateMessage(dbMsg); err != nil {
@@ -145,6 +152,7 @@ func (h *ChatHub) ServeWS(w http.ResponseWriter, r *http.Request, userID uuid.UU
 					ConversationID: dbMsg.ConversationID.String(),
 					SenderID:       dbMsg.SenderID.String(),
 					Content:        dbMsg.Content,
+					AttachmentURL:  dbMsg.AttachmentURL,
 					CreatedAt:      dbMsg.CreatedAt,
 				},
 			}
@@ -238,6 +246,7 @@ func (s *chatService) GetMessages(userID, convID uuid.UUID) ([]dto.MessageRespon
 			ConversationID: m.ConversationID.String(),
 			SenderID:       m.SenderID.String(),
 			Content:        m.Content,
+			AttachmentURL:  m.AttachmentURL,
 			CreatedAt:      m.CreatedAt,
 		})
 	}
