@@ -34,6 +34,8 @@ type CourseResponse struct {
 	Status        string           `json:"status"`
 	CreatedAt     time.Time        `json:"created_at"`
 	StudentCount  int              `json:"student_count"`
+	LikesCount    int64            `json:"likes_count"`
+	IsLiked       bool             `json:"is_liked"`
 	Modules       []ModuleResponse `json:"modules,omitempty"`
 }
 

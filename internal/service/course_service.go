@@ -24,6 +24,10 @@ type CourseService interface {
 	EnrollCourse(courseID uuid.UUID, userID uuid.UUID) error
 	GetEnrollmentStatus(courseID uuid.UUID, userID uuid.UUID) (*model.Enrollment, error)
 	CompleteModule(courseID uuid.UUID, moduleID uuid.UUID, userID uuid.UUID) error
+
+	LikeCourse(courseID uuid.UUID, userID uuid.UUID) error
+	UnlikeCourse(courseID uuid.UUID, userID uuid.UUID) error
+	GetTrendingCourses(limit int, userID uuid.UUID) ([]dto.CourseResponse, error)
 }
 
 type courseService struct {
@@ -352,7 +356,37 @@ func (s *courseService) CompleteModule(courseID uuid.UUID, moduleID uuid.UUID, u
 	return err
 }
 
+func (s *courseService) LikeCourse(courseID uuid.UUID, userID uuid.UUID) error {
+	return s.courseRepo.LikeCourse(userID, courseID)
+}
+
+func (s *courseService) UnlikeCourse(courseID uuid.UUID, userID uuid.UUID) error {
+	return s.courseRepo.UnlikeCourse(userID, courseID)
+}
+
+func (s *courseService) GetTrendingCourses(limit int, userID uuid.UUID) ([]dto.CourseResponse, error) {
+	courses, err := s.courseRepo.GetTrendingCourses(limit)
+	if err != nil {
+		return nil, err
+	}
+
+	var responses []dto.CourseResponse
+	for _, c := range courses {
+		responses = append(responses, *s.mapToCourseResponse(&c, userID))
+	}
+	if responses == nil {
+		responses = []dto.CourseResponse{}
+	}
+	return responses, nil
+}
+
 func (s *courseService) mapToCourseResponse(course *model.Course, userID uuid.UUID) *dto.CourseResponse {
+	likesCount, _ := s.courseRepo.GetCourseLikesCount(course.ID)
+	isLiked := false
+	if userID != uuid.Nil {
+		isLiked, _ = s.courseRepo.HasUserLikedCourse(userID, course.ID)
+	}
+
 	resp := &dto.CourseResponse{
 		ID:            course.ID.String(),
 		TeacherID:     course.TeacherID.String(),
@@ -367,6 +401,8 @@ func (s *courseService) mapToCourseResponse(course *model.Course, userID uuid.UU
 		Status:        course.Status,
 		CreatedAt:     course.CreatedAt,
 		StudentCount:  len(course.Enrollments),
+		LikesCount:    likesCount,
+		IsLiked:       isLiked,
 	}
 
 	if len(course.Modules) > 0 {

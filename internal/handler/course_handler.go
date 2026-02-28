@@ -443,3 +443,79 @@ func (h *CourseHandler) CompleteModule(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Module marked as completed"})
 }
+
+func (h *CourseHandler) LikeCourse(c *gin.Context) {
+	userClaimsRaw, exists := c.Get(middleware.UserContextKey)
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+	userClaims := userClaimsRaw.(middleware.UserClaims)
+
+	userID, err := uuid.Parse(userClaims.UserID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	courseIDStr := c.Param("id")
+	courseID, err := uuid.Parse(courseIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid course ID"})
+		return
+	}
+
+	if err := h.courseService.LikeCourse(courseID, userID); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Course liked successfully"})
+}
+
+func (h *CourseHandler) UnlikeCourse(c *gin.Context) {
+	userClaimsRaw, exists := c.Get(middleware.UserContextKey)
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+	userClaims := userClaimsRaw.(middleware.UserClaims)
+
+	userID, err := uuid.Parse(userClaims.UserID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	courseIDStr := c.Param("id")
+	courseID, err := uuid.Parse(courseIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid course ID"})
+		return
+	}
+
+	if err := h.courseService.UnlikeCourse(courseID, userID); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Course unliked successfully"})
+}
+
+func (h *CourseHandler) GetTrendingCourses(c *gin.Context) {
+	var userID uuid.UUID
+	if claimsRaw, exists := c.Get(middleware.UserContextKey); exists {
+		if claims, ok := claimsRaw.(middleware.UserClaims); ok {
+			userID, _ = uuid.Parse(claims.UserID)
+		}
+	}
+
+	// For now limit to 10 trending courses
+	courses, err := h.courseService.GetTrendingCourses(10, userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, courses)
+}

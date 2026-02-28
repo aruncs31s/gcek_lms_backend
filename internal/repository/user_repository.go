@@ -13,6 +13,7 @@ type UserRepository interface {
 	GetLeaderboard(limit int) ([]model.User, error)
 	List(limit, offset int, userType string) ([]model.User, int64, error)
 	GetProfileWithEnrolments(userID string, limit, offset int) (*model.User, []model.Enrollment, int64, error)
+	UpdateProfile(profile *model.Profile) error
 }
 
 type userRepository struct {
@@ -73,4 +74,8 @@ func (r *userRepository) GetProfileWithEnrolments(userID string, limit, offset i
 	err = r.db.Model(&model.Enrollment{}).Preload("Course").Where("user_id = ?", userID).Count(&count).Offset(offset).Limit(limit).Find(&enrollments).Error
 
 	return &user, enrollments, count, err
+}
+
+func (r *userRepository) UpdateProfile(profile *model.Profile) error {
+	return r.db.Save(profile).Error
 }

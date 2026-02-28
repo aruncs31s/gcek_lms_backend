@@ -106,12 +106,15 @@ func main() {
 		courses.Use(optAuthMw)
 		{
 			courses.GET("", courseHandler.GetAllCourses)
+			courses.GET("/trending", courseHandler.GetTrendingCourses)
 			courses.GET("/:id", courseHandler.GetCourseByID)
 		}
 
 		protectedCourses := api.Group("/courses") // Recreate without optAuthMw to prevent duplicate middleware runs
 		protectedCourses.Use(authMw)
 		{
+			protectedCourses.POST("/:id/like", courseHandler.LikeCourse)
+			protectedCourses.DELETE("/:id/like", courseHandler.UnlikeCourse)
 			protectedCourses.POST("/:id/enroll", courseHandler.EnrollCourse)
 			protectedCourses.GET("/:id/enrollment", courseHandler.GetEnrollmentStatus)
 			protectedCourses.POST("/:id/modules/:moduleId/complete", courseHandler.CompleteModule)
@@ -146,10 +149,11 @@ func main() {
 		}
 
 		// Upload Routes
+		// Note: video uploading is restricted to teachers/admins explicitly. Image is open for avatars.
 		upload := api.Group("/upload")
-		upload.Use(authMw, teacherAdminMw)
+		upload.Use(authMw)
 		{
-			upload.POST("/video", uploadHandler.UploadVideo)
+			upload.POST("/video", teacherAdminMw, uploadHandler.UploadVideo)
 			upload.POST("/image", uploadHandler.UploadImage)
 		}
 
@@ -187,6 +191,7 @@ func main() {
 	user.Use(authMw)
 	{
 		user.GET("", userHandler.List)
+		user.PUT("/profile", userHandler.UpdateProfile)
 		user.GET("/:id/enrolments", userHandler.Enrolments)
 	}
 	// Start server

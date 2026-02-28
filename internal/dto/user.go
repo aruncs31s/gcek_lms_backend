@@ -25,8 +25,17 @@ type UserResponse struct {
 	Email     string `json:"email"`
 	Role      string `json:"role"`
 	AvatarURL string `json:"avatar_url,omitempty"`
+	Bio       string `json:"bio,omitempty"`
 }
+
 type UserResponseWithType struct {
 	UserResponse
 	Type string `json:"type"`
+}
+
+type UpdateProfileRequest struct {
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Bio       string `json:"bio"`
+	AvatarURL string `json:"avatar_url"`
 }

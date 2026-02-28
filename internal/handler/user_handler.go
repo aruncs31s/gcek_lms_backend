@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/aruncs/esdc-lms/internal/dto"
+	"github.com/aruncs/esdc-lms/internal/middleware"
 	"github.com/aruncs/esdc-lms/internal/service"
 	"github.com/gin-gonic/gin"
 )
@@ -58,5 +60,32 @@ func (h *UserHandler) Enrolments(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+	c.JSON(http.StatusOK, res)
+}
+
+func (h *UserHandler) UpdateProfile(c *gin.Context) {
+	userClaimsRaw, exists := c.Get(middleware.UserContextKey)
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+	userClaims, ok := userClaimsRaw.(middleware.UserClaims)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid claims format"})
+		return
+	}
+
+	var req dto.UpdateProfileRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	res, err := h.us.UpdateProfile(userClaims.UserID, &req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
 	c.JSON(http.StatusOK, res)
 }

@@ -28,6 +28,13 @@ type CourseRepository interface {
 
 	UpdateModuleProgress(progress *model.ModuleProgress) error
 	GetModuleProgresses(userID uuid.UUID, courseID uuid.UUID) ([]model.ModuleProgress, error)
+
+	// Course Likes and Trending
+	LikeCourse(userID uuid.UUID, courseID uuid.UUID) error
+	UnlikeCourse(userID uuid.UUID, courseID uuid.UUID) error
+	HasUserLikedCourse(userID uuid.UUID, courseID uuid.UUID) (bool, error)
+	GetCourseLikesCount(courseID uuid.UUID) (int64, error)
+	GetTrendingCourses(limit int) ([]model.Course, error)
 	AddPointsToProfile(userID uuid.UUID, points int) error
 }
 
@@ -159,4 +166,45 @@ func (r *courseRepository) GetModuleProgresses(userID uuid.UUID, courseID uuid.U
 
 func (r *courseRepository) AddPointsToProfile(userID uuid.UUID, points int) error {
 	return r.db.Model(&model.Profile{}).Where("user_id = ?", userID).UpdateColumn("points", gorm.Expr("points + ?", points)).Error
+}
+
+func (r *courseRepository) LikeCourse(userID uuid.UUID, courseID uuid.UUID) error {
+	like := model.CourseLike{
+		UserID:   userID,
+		CourseID: courseID,
+	}
+	// Use clause.OnConflict to ignore if it already exists
+	return r.db.Save(&like).Error
+}
+
+func (r *courseRepository) UnlikeCourse(userID uuid.UUID, courseID uuid.UUID) error {
+	return r.db.Where("user_id = ? AND course_id = ?", userID, courseID).Delete(&model.CourseLike{}).Error
+}
+
+func (r *courseRepository) HasUserLikedCourse(userID uuid.UUID, courseID uuid.UUID) (bool, error) {
+	var count int64
+	err := r.db.Model(&model.CourseLike{}).Where("user_id = ? AND course_id = ?", userID, courseID).Count(&count).Error
+	return count > 0, err
+}
+
+func (r *courseRepository) GetCourseLikesCount(courseID uuid.UUID) (int64, error) {
+	var count int64
+	err := r.db.Model(&model.CourseLike{}).Where("course_id = ?", courseID).Count(&count).Error
+	return count, err
+}
+
+func (r *courseRepository) GetTrendingCourses(limit int) ([]model.Course, error) {
+	var courses []model.Course
+	// Select courses joined with a count of course_likes
+	err := r.db.
+		Preload("Teacher.Profile").
+		Preload("Enrollments").
+		Joins("LEFT JOIN course_likes ON course_likes.course_id = courses.id").
+		Select("courses.*, count(course_likes.user_id) as likes_count").
+		Group("courses.id").
+		Order("likes_count desc, created_at desc").
+		Limit(limit).
+		Find(&courses).Error
+
+	return courses, err
 }

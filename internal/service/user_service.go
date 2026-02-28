@@ -17,6 +17,7 @@ type UserService interface {
 	LoginUser(req *dto.LoginRequest) (*dto.AuthResponse, error)
 	List(limit, offset int, userType string) (users []dto.UserResponseWithType, count int64, err error)
 	Enrolments(limit, offset int, userId string) (*dto.UserProfileEnrolmentsResponse, error)
+	UpdateProfile(userId string, req *dto.UpdateProfileRequest) (*dto.UserResponse, error)
 }
 
 type userService struct {
@@ -77,6 +78,7 @@ func (s *userService) RegisterUser(req *dto.RegisterRequest) (*dto.AuthResponse,
 			Email:     user.Email,
 			Role:      string(user.Role),
 			AvatarURL: user.Profile.AvatarURL,
+			Bio:       user.Profile.Bio,
 		},
 	}, nil
 }
@@ -105,6 +107,7 @@ func (s *userService) LoginUser(req *dto.LoginRequest) (*dto.AuthResponse, error
 			Email:     user.Email,
 			Role:      string(user.Role),
 			AvatarURL: user.Profile.AvatarURL,
+			Bio:       user.Profile.Bio,
 		},
 	}, nil
 }
@@ -134,6 +137,7 @@ func (s *userService) List(limit, offset int, userType string) ([]dto.UserRespon
 				Email:     u.Email,
 				Role:      string(u.Role),
 				AvatarURL: u.Profile.AvatarURL,
+				Bio:       u.Profile.Bio,
 			},
 			Type: string(u.Role),
 		})
@@ -188,10 +192,39 @@ func (s *userService) Enrolments(limit, offset int, userId string) (*dto.UserPro
 			Email:     user.Email,
 			Role:      string(user.Role),
 			AvatarURL: user.Profile.AvatarURL,
+			Bio:       user.Profile.Bio,
 		},
 		Points:       user.Profile.Points,
 		Achievements: achievementsRes,
 		Enrolments:   enrolmentsRes,
 		TotalCount:   count,
+	}, nil
+}
+
+func (s *userService) UpdateProfile(userId string, req *dto.UpdateProfileRequest) (*dto.UserResponse, error) {
+	user, _, _, err := s.userRepo.GetProfileWithEnrolments(userId, 1, 0)
+	if err != nil {
+		return nil, errors.New("user not found")
+	}
+
+	user.Profile.FirstName = req.FirstName
+	user.Profile.LastName = req.LastName
+	user.Profile.Bio = req.Bio
+	if req.AvatarURL != "" {
+		user.Profile.AvatarURL = req.AvatarURL
+	}
+
+	if err := s.userRepo.UpdateProfile(&user.Profile); err != nil {
+		return nil, err
+	}
+
+	return &dto.UserResponse{
+		ID:        user.ID.String(),
+		FirstName: user.Profile.FirstName,
+		LastName:  user.Profile.LastName,
+		Email:     user.Email,
+		Role:      string(user.Role),
+		AvatarURL: user.Profile.AvatarURL,
+		Bio:       user.Profile.Bio,
 	}, nil
 }
