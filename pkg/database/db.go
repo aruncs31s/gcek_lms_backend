@@ -27,6 +27,7 @@ func ConnectDB(cfg *config.Config) (*gorm.DB, error) {
 		&model.Profile{},
 		&model.Course{},
 		&model.Module{},
+		&model.ModuleProgress{},
 		&model.Enrollment{},
 		&model.CourseReview{},
 		&model.CourseLike{},
@@ -36,6 +37,10 @@ func ConnectDB(cfg *config.Config) (*gorm.DB, error) {
 		&model.Message{},
 		&model.Blog{},
 		&model.Certificate{},
+		&model.Assignment{},
+		&model.AssignmentSubmission{},
+		&model.Notification{},
+		&model.Achievement{},
 	)
 	if err != nil {
 		log.Printf("Failed to auto-migrate database: %v\n", err)

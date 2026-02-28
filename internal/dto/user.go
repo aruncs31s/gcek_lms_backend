@@ -26,3 +26,7 @@ type UserResponse struct {
 	Role      string `json:"role"`
 	AvatarURL string `json:"avatar_url,omitempty"`
 }
+type UserResponseWithType struct {
+	UserResponse
+	Type string `json:"type"`
+}

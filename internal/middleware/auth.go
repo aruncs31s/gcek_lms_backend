@@ -70,6 +70,52 @@ func AuthMiddleware(secret string) gin.HandlerFunc {
 	}
 }
 
+func OptionalAuthMiddleware(secret string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		authHeader := c.GetHeader("Authorization")
+		if authHeader == "" {
+			c.Next()
+			return
+		}
+
+		parts := strings.Split(authHeader, " ")
+		if len(parts) != 2 || parts[0] != "Bearer" {
+			c.Next()
+			return
+		}
+
+		tokenString := parts[1]
+		token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
+			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, fmt.Errorf("unexpected signing method")
+			}
+			return []byte(secret), nil
+		})
+
+		if err != nil || !token.Valid {
+			c.Next()
+			return
+		}
+
+		claims, ok := token.Claims.(jwt.MapClaims)
+		if !ok {
+			c.Next()
+			return
+		}
+
+		userID, ok1 := claims["user_id"].(string)
+		role, ok2 := claims["role"].(string)
+
+		if ok1 && ok2 {
+			c.Set(UserContextKey, UserClaims{
+				UserID: userID,
+				Role:   role,
+			})
+		}
+		c.Next()
+	}
+}
+
 func RoleMiddleware(allowedRoles ...string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		claimsInterface, exists := c.Get(UserContextKey)

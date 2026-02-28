@@ -11,14 +11,24 @@ import (
 type CourseRepository interface {
 	CreateCourse(course *model.Course) error
 	GetCourseByID(id uuid.UUID) (*model.Course, error)
-	GetAllCourses() ([]model.Course, error)
+	GetAllCourses(query string, courseType string, status string) ([]model.Course, error)
 	UpdateCourse(course *model.Course) error
 	DeleteCourse(id uuid.UUID) error
 
 	CreateModule(module *model.Module) error
+	GetModuleByID(id uuid.UUID) (*model.Module, error)
 	GetModulesByCourseID(courseID uuid.UUID) ([]model.Module, error)
 	GetMaxModuleOrderIndex(courseID uuid.UUID) int
+	UpdateModule(module *model.Module) error
 	DeleteModule(id uuid.UUID) error
+	UpdateModuleOrder(courseID uuid.UUID, orderedIDs []uuid.UUID) error
+
+	CreateEnrollment(enrollment *model.Enrollment) error
+	GetEnrollment(userID uuid.UUID, courseID uuid.UUID) (*model.Enrollment, error)
+
+	UpdateModuleProgress(progress *model.ModuleProgress) error
+	GetModuleProgresses(userID uuid.UUID, courseID uuid.UUID) ([]model.ModuleProgress, error)
+	AddPointsToProfile(userID uuid.UUID, points int) error
 }
 
 type courseRepository struct {
@@ -35,7 +45,7 @@ func (r *courseRepository) CreateCourse(course *model.Course) error {
 
 func (r *courseRepository) GetCourseByID(id uuid.UUID) (*model.Course, error) {
 	var course model.Course
-	err := r.db.Preload("Modules").First(&course, "id = ?", id).Error
+	err := r.db.Preload("Teacher.Profile").Preload("Modules").Preload("Enrollments").First(&course, "id = ?", id).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
@@ -45,9 +55,21 @@ func (r *courseRepository) GetCourseByID(id uuid.UUID) (*model.Course, error) {
 	return &course, nil
 }
 
-func (r *courseRepository) GetAllCourses() ([]model.Course, error) {
+func (r *courseRepository) GetAllCourses(query string, courseType string, status string) ([]model.Course, error) {
 	var courses []model.Course
-	err := r.db.Find(&courses).Error
+	db := r.db.Preload("Teacher.Profile").Preload("Enrollments")
+
+	if query != "" {
+		db = db.Where("LOWER(title) LIKE LOWER(?) OR LOWER(description) LIKE LOWER(?)", "%"+query+"%", "%"+query+"%")
+	}
+	if courseType != "" {
+		db = db.Where("type = ?", courseType)
+	}
+	if status != "" {
+		db = db.Where("status = ?", status)
+	}
+
+	err := db.Order("created_at desc").Find(&courses).Error
 	return courses, err
 }
 
@@ -75,6 +97,66 @@ func (r *courseRepository) GetMaxModuleOrderIndex(courseID uuid.UUID) int {
 	return maxOrder
 }
 
+func (r *courseRepository) GetModuleByID(id uuid.UUID) (*model.Module, error) {
+	var module model.Module
+	err := r.db.First(&module, "id = ?", id).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &module, nil
+}
+
+func (r *courseRepository) UpdateModule(module *model.Module) error {
+	return r.db.Save(module).Error
+}
+
 func (r *courseRepository) DeleteModule(id uuid.UUID) error {
 	return r.db.Delete(&model.Module{}, "id = ?", id).Error
+}
+
+func (r *courseRepository) UpdateModuleOrder(courseID uuid.UUID, orderedIDs []uuid.UUID) error {
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		for i, id := range orderedIDs {
+			if err := tx.Model(&model.Module{}).Where("id = ? AND course_id = ?", id, courseID).Update("order_index", i+1).Error; err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+}
+
+func (r *courseRepository) CreateEnrollment(enrollment *model.Enrollment) error {
+	return r.db.Create(enrollment).Error
+}
+
+func (r *courseRepository) GetEnrollment(userID uuid.UUID, courseID uuid.UUID) (*model.Enrollment, error) {
+	var enrollment model.Enrollment
+	err := r.db.First(&enrollment, "user_id = ? AND course_id = ?", userID, courseID).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &enrollment, nil
+}
+
+func (r *courseRepository) UpdateModuleProgress(progress *model.ModuleProgress) error {
+	return r.db.Save(progress).Error
+}
+
+func (r *courseRepository) GetModuleProgresses(userID uuid.UUID, courseID uuid.UUID) ([]model.ModuleProgress, error) {
+	var progresses []model.ModuleProgress
+	// Join with modules to filter by course
+	err := r.db.Joins("JOIN modules ON modules.id = module_progresses.module_id").
+		Where("module_progresses.user_id = ? AND modules.course_id = ?", userID, courseID).
+		Find(&progresses).Error
+	return progresses, err
+}
+
+func (r *courseRepository) AddPointsToProfile(userID uuid.UUID, points int) error {
+	return r.db.Model(&model.Profile{}).Where("user_id = ?", userID).UpdateColumn("points", gorm.Expr("points + ?", points)).Error
 }

@@ -13,6 +13,7 @@ type Profile struct {
 	LastName  string    `gorm:"type:varchar(100);not null"`
 	AvatarURL string    `gorm:"type:varchar(255)"`
 	Bio       string    `gorm:"type:text"`
+	Points    int       `gorm:"default:0"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`

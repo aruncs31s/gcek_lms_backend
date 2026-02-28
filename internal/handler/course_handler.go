@@ -49,24 +49,42 @@ func (h *CourseHandler) CreateCourse(c *gin.Context) {
 }
 
 func (h *CourseHandler) GetAllCourses(c *gin.Context) {
-	res, err := h.courseService.GetAllCourses()
+	var userID uuid.UUID
+	if claimsRaw, exists := c.Get(middleware.UserContextKey); exists {
+		if claims, ok := claimsRaw.(middleware.UserClaims); ok {
+			userID, _ = uuid.Parse(claims.UserID)
+		}
+	}
+
+	query := c.Query("query")
+	courseType := c.Query("type")
+	status := c.Query("status")
+
+	courses, err := h.courseService.GetAllCourses(userID, query, courseType, status)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch courses"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	c.JSON(http.StatusOK, courses)
 }
 
 func (h *CourseHandler) GetCourseByID(c *gin.Context) {
 	idStr := c.Param("id")
-	courseID, err := uuid.Parse(idStr)
+	id, err := uuid.Parse(idStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid course ID format"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid course ID"})
 		return
 	}
 
-	res, err := h.courseService.GetCourseByID(courseID)
+	var userID uuid.UUID
+	if claimsRaw, exists := c.Get(middleware.UserContextKey); exists {
+		if claims, ok := claimsRaw.(middleware.UserClaims); ok {
+			userID, _ = uuid.Parse(claims.UserID)
+		}
+	}
+
+	course, err := h.courseService.GetCourseByID(id, userID)
 	if err != nil {
 		if err.Error() == "course not found" {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Course not found"})
@@ -76,7 +94,7 @@ func (h *CourseHandler) GetCourseByID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, res)
+	c.JSON(http.StatusOK, course)
 }
 
 func (h *CourseHandler) UpdateCourse(c *gin.Context) {
@@ -227,4 +245,201 @@ func (h *CourseHandler) DeleteModule(c *gin.Context) {
 	}
 
 	c.Status(http.StatusNoContent)
+}
+
+func (h *CourseHandler) UpdateModule(c *gin.Context) {
+	userClaimsRaw, exists := c.Get(middleware.UserContextKey)
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+	userClaims := userClaimsRaw.(middleware.UserClaims)
+
+	teacherID, err := uuid.Parse(userClaims.UserID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	courseIDStr := c.Param("id")
+	courseID, err := uuid.Parse(courseIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid course ID"})
+		return
+	}
+
+	moduleIDStr := c.Param("moduleId")
+	moduleID, err := uuid.Parse(moduleIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid module ID"})
+		return
+	}
+
+	var req dto.UpdateModuleRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	res, err := h.courseService.UpdateModule(courseID, moduleID, teacherID, &req)
+	if err != nil {
+		status := http.StatusInternalServerError
+		if err.Error() == "course not found" || err.Error() == "module not found in the specified course" {
+			status = http.StatusNotFound
+		} else if strings.HasPrefix(err.Error(), "forbidden") {
+			status = http.StatusForbidden
+		}
+		c.JSON(status, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, res)
+}
+
+func (h *CourseHandler) ReorderModules(c *gin.Context) {
+	userClaimsRaw, exists := c.Get(middleware.UserContextKey)
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+	userClaims := userClaimsRaw.(middleware.UserClaims)
+
+	teacherID, err := uuid.Parse(userClaims.UserID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	courseIDStr := c.Param("id")
+	courseID, err := uuid.Parse(courseIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid course ID"})
+		return
+	}
+
+	var req dto.ReorderModulesRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err = h.courseService.ReorderModules(courseID, teacherID, &req)
+	if err != nil {
+		status := http.StatusInternalServerError
+		if err.Error() == "course not found" {
+			status = http.StatusNotFound
+		} else if strings.HasPrefix(err.Error(), "forbidden") {
+			status = http.StatusForbidden
+		}
+		c.JSON(status, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Modules reordered successfully"})
+}
+
+func (h *CourseHandler) EnrollCourse(c *gin.Context) {
+	userClaimsRaw, exists := c.Get(middleware.UserContextKey)
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+	userClaims := userClaimsRaw.(middleware.UserClaims)
+
+	userID, err := uuid.Parse(userClaims.UserID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	courseIDStr := c.Param("id")
+	courseID, err := uuid.Parse(courseIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid course ID"})
+		return
+	}
+
+	err = h.courseService.EnrollCourse(courseID, userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{"message": "Successfully enrolled"})
+}
+
+func (h *CourseHandler) GetEnrollmentStatus(c *gin.Context) {
+	userClaimsRaw, exists := c.Get(middleware.UserContextKey)
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+	userClaims := userClaimsRaw.(middleware.UserClaims)
+
+	userID, err := uuid.Parse(userClaims.UserID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	courseIDStr := c.Param("id")
+	courseID, err := uuid.Parse(courseIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid course ID"})
+		return
+	}
+
+	enrollment, err := h.courseService.GetEnrollmentStatus(courseID, userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if enrollment == nil {
+		c.JSON(http.StatusOK, gin.H{"enrolled": false})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"enrolled":            true,
+		"status":              enrollment.Status,
+		"progress_percentage": enrollment.ProgressPercentage,
+	})
+}
+
+func (h *CourseHandler) CompleteModule(c *gin.Context) {
+	userClaimsRaw, exists := c.Get(middleware.UserContextKey)
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+	userClaims := userClaimsRaw.(middleware.UserClaims)
+
+	userID, err := uuid.Parse(userClaims.UserID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	courseIDStr := c.Param("id")
+	courseID, err := uuid.Parse(courseIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid course ID"})
+		return
+	}
+
+	moduleIDStr := c.Param("moduleId")
+	moduleID, err := uuid.Parse(moduleIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid module ID"})
+		return
+	}
+
+	err = h.courseService.CompleteModule(courseID, moduleID, userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Module marked as completed"})
 }

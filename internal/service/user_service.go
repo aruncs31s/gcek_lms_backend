@@ -15,17 +15,21 @@ import (
 type UserService interface {
 	RegisterUser(req *dto.RegisterRequest) (*dto.AuthResponse, error)
 	LoginUser(req *dto.LoginRequest) (*dto.AuthResponse, error)
+	List(limit, offset int, userType string) (users []dto.UserResponseWithType, count int64, err error)
+	Enrolments(limit, offset int, userId string) (*dto.UserProfileEnrolmentsResponse, error)
 }
 
 type userService struct {
-	userRepo  repository.UserRepository
-	jwtSecret []byte
+	userRepo        repository.UserRepository
+	achievementRepo repository.AchievementRepository
+	jwtSecret       []byte
 }
 
-func NewUserService(repo repository.UserRepository, secret string) UserService {
+func NewUserService(repo repository.UserRepository, achievementRepo repository.AchievementRepository, secret string) UserService {
 	return &userService{
-		userRepo:  repo,
-		jwtSecret: []byte(secret),
+		userRepo:        repo,
+		achievementRepo: achievementRepo,
+		jwtSecret:       []byte(secret),
 	}
 }
 
@@ -114,4 +118,80 @@ func (s *userService) generateToken(userID uuid.UUID, role string) (string, erro
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString(s.jwtSecret)
+}
+func (s *userService) List(limit, offset int, userType string) ([]dto.UserResponseWithType, int64, error) {
+	users, count, err := s.userRepo.List(limit, offset, userType)
+	if err != nil {
+		return nil, 0, err
+	}
+	var res []dto.UserResponseWithType
+	for _, u := range users {
+		res = append(res, dto.UserResponseWithType{
+			UserResponse: dto.UserResponse{
+				ID:        u.ID.String(),
+				FirstName: u.Profile.FirstName,
+				LastName:  u.Profile.LastName,
+				Email:     u.Email,
+				Role:      string(u.Role),
+				AvatarURL: u.Profile.AvatarURL,
+			},
+			Type: string(u.Role),
+		})
+	}
+	return res, count, nil
+}
+
+func (s *userService) Enrolments(limit, offset int, userId string) (*dto.UserProfileEnrolmentsResponse, error) {
+	// 1. Fetch user (with Profile) and enrollments (with Course)
+	user, enrollments, count, err := s.userRepo.GetProfileWithEnrolments(userId, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+
+	// 2. Fetch user's achievements
+	achievements, err := s.achievementRepo.FindByUserID(user.ID)
+	if err != nil {
+		// Just log or ignore achievement errors if we want, or return
+		return nil, err
+	}
+
+	// 3. Map to DTO
+	var enrolmentsRes []dto.EnrolmentResponse
+	for _, e := range enrollments {
+		enrolmentsRes = append(enrolmentsRes, dto.EnrolmentResponse{
+			CourseID:           e.CourseID.String(),
+			CourseTitle:        e.Course.Title,
+			CourseThumbnailURL: e.Course.ThumbnailURL,
+			Status:             string(e.Status),
+			ProgressPercentage: e.ProgressPercentage,
+			EnrolledAt:         e.EnrolledAt,
+		})
+	}
+
+	var achievementsRes []dto.AchievementResponse
+	for _, a := range achievements {
+		achievementsRes = append(achievementsRes, dto.AchievementResponse{
+			ID:          a.ID.String(),
+			Title:       a.Title,
+			Description: a.Description,
+			IconURL:     a.IconURL,
+			Points:      a.Points,
+			EarnedAt:    a.CreatedAt,
+		})
+	}
+
+	return &dto.UserProfileEnrolmentsResponse{
+		User: dto.UserResponse{
+			ID:        user.ID.String(),
+			FirstName: user.Profile.FirstName,
+			LastName:  user.Profile.LastName,
+			Email:     user.Email,
+			Role:      string(user.Role),
+			AvatarURL: user.Profile.AvatarURL,
+		},
+		Points:       user.Profile.Points,
+		Achievements: achievementsRes,
+		Enrolments:   enrolmentsRes,
+		TotalCount:   count,
+	}, nil
 }
