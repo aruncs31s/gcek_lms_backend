@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"log"
 	"os"
 	"path/filepath"
 
@@ -15,6 +16,7 @@ var Log *zap.Logger
 func Init(logDir string, logLevel string) error {
 	// Create logs directory if it doesn't exist
 	if err := os.MkdirAll(logDir, 0755); err != nil {
+		log.Println("Failed to create log directory:", err)
 		return err
 	}
 

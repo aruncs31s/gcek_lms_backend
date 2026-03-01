@@ -9,9 +9,9 @@ import (
 )
 
 const (
-	ImageUploadType      = "image"
-	VideoUploadType      = "video"
-	AttachmentUploadType = "attachment"
+	ImageUploadType      = "images"
+	VideoUploadType      = "videos"
+	AttachmentUploadType = "attachments"
 )
 
 func getFileURL(
