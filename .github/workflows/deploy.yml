@@ -22,4 +22,5 @@ jobs:
           script: |
             cd /home/lms/gcek_lms_backend
             git pull origin main
+            go build -o app ./cmd/server/main.go
             sudo systemctl restart lms_app
