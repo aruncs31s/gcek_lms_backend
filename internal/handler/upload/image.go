@@ -6,9 +6,11 @@ import (
 	"path/filepath"
 
 	"github.com/aruncs/esdc-lms/internal/dto"
+	"github.com/aruncs/esdc-lms/internal/logger"
 	"github.com/aruncs/esdc-lms/internal/middleware"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 )
 
 type ImageUploadHandler interface {
@@ -57,12 +59,15 @@ func (h *imageUploadHandler) Upload(c *gin.Context) {
 
 	uploadDir := filepath.Join(h.UploadDir, "images")
 	if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
+		logger.GetLogger().Error("Failed to save uploaded file", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not create upload directory"})
 		return
 	}
 
 	dstPath := filepath.Join(uploadDir, newFileName)
 	if err := c.SaveUploadedFile(file, dstPath); err != nil {
+
+		logger.GetLogger().Error("Failed to save uploaded file", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not save file"})
 		return
 	}

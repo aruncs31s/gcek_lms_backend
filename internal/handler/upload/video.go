@@ -44,7 +44,7 @@ func (h *videoUploadHandler) Upload(c *gin.Context) {
 
 	puuid, err := uuid.Parse(userClaims.UserID)
 
-	logger.Log.Debug(
+	logger.GetLogger().Debug(
 		"Parsed user ID",
 		zap.String(
 			"userID",
@@ -81,12 +81,14 @@ func (h *videoUploadHandler) Upload(c *gin.Context) {
 
 	uploadDir := filepath.Join(h.UploadDir, "videos")
 	if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
+		logger.GetLogger().Error("Failed to save uploaded file", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not create upload directory"})
 		return
 	}
 
 	dstPath := filepath.Join(uploadDir, newFileName)
 	if err := c.SaveUploadedFile(file, dstPath); err != nil {
+		logger.GetLogger().Error("Failed to save uploaded file", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not save file"})
 		return
 	}
