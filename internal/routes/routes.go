@@ -12,7 +12,7 @@ func SetupRoutes(
 	jwtSecret string,
 	authHandler *handler.AuthHandler,
 	courseHandler *handler.CourseHandler,
-	uploadHandler *handler.UploadHandler,
+	uploadHandler handler.UploadHandler,
 	certHandler *handler.CertificateHandler,
 	chatHandler *handler.ChatHandler,
 	leaderboardHandler *handler.LeaderboardHandler,

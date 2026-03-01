@@ -7,34 +7,51 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/aruncs/esdc-lms/internal/dto"
+	"github.com/aruncs/esdc-lms/internal/logger"
 	"github.com/aruncs/esdc-lms/internal/middleware"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 )
 
-type UploadResponse struct {
-	FileURL string `json:"file_url"`
+type UploadHandler interface {
+	UploadVideo(c *gin.Context)
+	UploadImage(c *gin.Context)
+	UploadAttachment(c *gin.Context)
 }
-
-type UploadHandler struct {
+type uploadHandler struct {
 	BaseUploadURL string
 }
 
-func NewUploadHandler(baseURL string) *UploadHandler {
-	return &UploadHandler{
+func NewUploadHandler(baseURL string) *uploadHandler {
+	return &uploadHandler{
 		BaseUploadURL: baseURL,
 	}
 }
 
-func (h *UploadHandler) UploadVideo(c *gin.Context) {
+func (h *uploadHandler) UploadVideo(c *gin.Context) {
 	userClaimsRaw, exists := c.Get(middleware.UserContextKey)
+
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		c.JSON(
+			http.StatusUnauthorized,
+			gin.H{
+				"error": "Unauthorized",
+			})
 		return
 	}
 
 	userClaims := userClaimsRaw.(middleware.UserClaims)
-	_, err := uuid.Parse(userClaims.UserID)
+
+	puuid, err := uuid.Parse(userClaims.UserID)
+
+	logger.Log.Debug(
+		"Parsed user ID",
+		zap.String(
+			"userID",
+			puuid.String(),
+		))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
 		return
@@ -42,13 +59,21 @@ func (h *UploadHandler) UploadVideo(c *gin.Context) {
 
 	file, err := c.FormFile("video")
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid file key, expected 'video'"})
+		c.JSON(
+			http.StatusBadRequest,
+			gin.H{
+				"error": "Invalid file key, expected 'video'",
+			})
 		return
 	}
 
 	contentType := file.Header.Get("Content-Type")
 	if contentType != "video/mp4" && contentType != "video/webm" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid file type, only mp4 and webm are allowed"})
+		c.JSON(
+			http.StatusBadRequest,
+			gin.H{
+				"error": "Invalid file type, only mp4 and webm are allowed",
+			})
 		return
 	}
 
@@ -67,11 +92,11 @@ func (h *UploadHandler) UploadVideo(c *gin.Context) {
 		return
 	}
 
-	fileURL := fmt.Sprintf("%s/uploads/videos/%s", h.BaseUploadURL, newFileName)
-	c.JSON(http.StatusOK, UploadResponse{FileURL: fileURL})
+	fileURL := fmt.Sprintf("%s/videos/%s", h.BaseUploadURL, newFileName)
+	c.JSON(http.StatusOK, dto.UploadResponse{FileURL: fileURL})
 }
 
-func (h *UploadHandler) UploadImage(c *gin.Context) {
+func (h *uploadHandler) UploadImage(c *gin.Context) {
 	userClaimsRaw, exists := c.Get(middleware.UserContextKey)
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
@@ -113,10 +138,10 @@ func (h *UploadHandler) UploadImage(c *gin.Context) {
 	}
 
 	fileURL := fmt.Sprintf("%s/uploads/images/%s", h.BaseUploadURL, newFileName)
-	c.JSON(http.StatusOK, UploadResponse{FileURL: fileURL})
+	c.JSON(http.StatusOK, dto.UploadResponse{FileURL: fileURL})
 }
 
-func (h *UploadHandler) UploadAttachment(c *gin.Context) {
+func (h *uploadHandler) UploadAttachment(c *gin.Context) {
 	userClaimsRaw, exists := c.Get(middleware.UserContextKey)
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
@@ -152,5 +177,5 @@ func (h *UploadHandler) UploadAttachment(c *gin.Context) {
 	}
 
 	fileURL := fmt.Sprintf("%s/uploads/attachments/%s", h.BaseUploadURL, newFileName)
-	c.JSON(http.StatusOK, UploadResponse{FileURL: fileURL})
+	c.JSON(http.StatusOK, dto.UploadResponse{FileURL: fileURL})
 }

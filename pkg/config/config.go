@@ -13,8 +13,11 @@ type Config struct {
 	DBPassword string
 	DBName     string
 	DBPort     string
+	MediaURL   string
 	ServerPort string
 	ServerURL  string
+	LogDir     string
+	LogLevel   string
 }
 
 func LoadConfig() *Config {
@@ -24,13 +27,16 @@ func LoadConfig() *Config {
 	}
 
 	return &Config{
-		DBHost:     getEnv("DB_HOST", "localhost"),
-		DBUser:     getEnv("DB_USER", "postgres"),
-		DBPassword: getEnv("DB_PASSWORD", "postgres"),
-		DBName:     getEnv("DB_NAME", "esdc_lms"),
-		DBPort:     getEnv("DB_PORT", "5432"),
-		ServerPort: getEnv("SERVER_PORT", "8090"),
-		ServerURL:  getEnv("SERVER_URL", "http://localhost"),
+		DBHost:     mustGetEnv("DB_HOST"),
+		DBUser:     mustGetEnv("DB_USER"),
+		DBPassword: mustGetEnv("DB_PASSWORD"),
+		DBName:     mustGetEnv("DB_NAME"),
+		DBPort:     mustGetEnv("DB_PORT"),
+		ServerPort: mustGetEnv("SERVER_PORT"),
+		ServerURL:  mustGetEnv("SERVER_URL"),
+		LogDir:     mustGetEnv("LOG_DIR"),
+		LogLevel:   mustGetEnv("LOG_LEVEL"),
+		MediaURL:   mustGetEnv("MEDIA_URL"),
 	}
 }
 
@@ -39,4 +45,11 @@ func getEnv(key, defaultVal string) string {
 		return value
 	}
 	return defaultVal
+}
+func mustGetEnv(key string) string {
+	value, exists := os.LookupEnv(key)
+	if !exists {
+		log.Fatalf("Environment variable %s is required but not set", key)
+	}
+	return value
 }

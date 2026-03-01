@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/aruncs/esdc-lms/internal/handler"
+	"github.com/aruncs/esdc-lms/internal/logger"
 	"github.com/aruncs/esdc-lms/internal/repository"
 	"github.com/aruncs/esdc-lms/internal/routes"
 	"github.com/aruncs/esdc-lms/internal/service"
@@ -19,7 +20,7 @@ import (
 func main() {
 	// Load Configuration
 	cfg := config.LoadConfig()
-
+	logger.Init(cfg.LogDir, cfg.LogLevel)
 	// Connect to Database
 	db, err := database.ConnectDB(cfg)
 	if err != nil {
@@ -54,7 +55,7 @@ func main() {
 	assignmentService := service.NewAssignmentService(assignmentRepo, courseRepo, ocrClient, notificationService)
 	codingService := service.NewCodingService(codingRepo, courseRepo)
 
-	baseURL := "http://localhost" + ":" + cfg.ServerPort
+	baseURL := cfg.MediaURL
 
 	// Initialize Handlers
 	authHandler := handler.NewAuthHandler(userService)
@@ -80,7 +81,8 @@ func main() {
 	r.Use(cors.New(corsConfig))
 
 	// Register all routes
-	routes.SetupRoutes(r, jwtSecret,
+	routes.SetupRoutes(
+		r, jwtSecret,
 		authHandler,
 		courseHandler,
 		uploadHandler,
