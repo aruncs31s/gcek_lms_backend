@@ -6,6 +6,7 @@ import (
 
 	"github.com/aruncs/esdc-lms/internal/handler"
 	"github.com/aruncs/esdc-lms/internal/repository"
+	"github.com/aruncs/esdc-lms/internal/routes"
 	"github.com/aruncs/esdc-lms/internal/service"
 	"github.com/aruncs/esdc-lms/pkg/certgen"
 	"github.com/aruncs/esdc-lms/pkg/config"
@@ -79,7 +80,7 @@ func main() {
 	r.Use(cors.New(corsConfig))
 
 	// Register all routes
-	setupRoutes(r, jwtSecret,
+	routes.SetupRoutes(r, jwtSecret,
 		authHandler,
 		courseHandler,
 		uploadHandler,
