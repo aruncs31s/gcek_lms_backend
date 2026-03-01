@@ -45,7 +45,7 @@ func main() {
 	go chatHub.Run()
 
 	// Initialize Services
-	jwtSecret := "supersecretkey_change_me_in_prod" // Replace with cfg.JWTSecret later
+	jwtSecret := cfg.JWTSecret
 	userService := service.NewUserService(userRepo, achievementRepo, jwtSecret)
 	courseService := service.NewCourseService(courseRepo)
 	certService := service.NewCertificateService(certRepo, userRepo, courseRepo, orchestrator)

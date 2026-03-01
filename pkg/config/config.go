@@ -19,6 +19,7 @@ type Config struct {
 	ServerURL  string
 	LogDir     string
 	LogLevel   string
+	JWTSecret  string
 }
 
 func LoadConfig() *Config {
@@ -39,6 +40,7 @@ func LoadConfig() *Config {
 		LogLevel:   mustGetEnv("LOG_LEVEL"),
 		MediaURL:   mustGetEnv("MEDIA_URL"),
 		UploadDir:  mustGetEnv("UPLOAD_DIR"),
+		JWTSecret:  mustGetEnv("JWT_SECRET"),
 	}
 }
 
