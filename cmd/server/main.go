@@ -5,8 +5,6 @@ import (
 	"log"
 
 	"github.com/aruncs/esdc-lms/internal/handler"
-	"github.com/aruncs/esdc-lms/internal/middleware"
-	"github.com/aruncs/esdc-lms/internal/model"
 	"github.com/aruncs/esdc-lms/internal/repository"
 	"github.com/aruncs/esdc-lms/internal/service"
 	"github.com/aruncs/esdc-lms/pkg/certgen"
@@ -50,12 +48,12 @@ func main() {
 	courseService := service.NewCourseService(courseRepo)
 	certService := service.NewCertificateService(certRepo, userRepo, courseRepo, orchestrator)
 	chatService := service.NewChatService(chatRepo)
-
 	ocrClient := ocr.NewClient("http://localhost:8000")
 	notificationService := service.NewNotificationService(notificationRepo)
 	assignmentService := service.NewAssignmentService(assignmentRepo, courseRepo, ocrClient, notificationService)
+	codingService := service.NewCodingService(codingRepo, courseRepo)
 
-	baseURL := "http://localhost:" + cfg.ServerPort // Should ideally be from config
+	baseURL := "http://localhost" + ":" + cfg.ServerPort
 
 	// Initialize Handlers
 	authHandler := handler.NewAuthHandler(userService)
@@ -66,8 +64,8 @@ func main() {
 	leaderboardHandler := handler.NewLeaderboardHandler(userRepo)
 	assignmentHandler := handler.NewAssignmentHandler(assignmentService)
 	notificationHandler := handler.NewNotificationHandler(notificationService)
-	codingService := service.NewCodingService(codingRepo, courseRepo)
 	codingHandler := handler.NewCodingHandler(codingService)
+	userHandler := handler.NewUserHandler(userService)
 
 	fmt.Printf("Starting ESDC LMS Backend on port %s...\n", cfg.ServerPort)
 
@@ -75,155 +73,27 @@ func main() {
 	r := gin.Default()
 
 	// Setup CORS
-	configCors := cors.DefaultConfig()
-	configCors.AllowAllOrigins = true
-	configCors.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
-	r.Use(cors.New(configCors))
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowAllOrigins = true
+	corsConfig.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
+	r.Use(cors.New(corsConfig))
 
-	// Global Middlewares
-	authMw := middleware.AuthMiddleware(jwtSecret)
-	optAuthMw := middleware.OptionalAuthMiddleware(jwtSecret)
-	// Now allowing Student, Teacher, Admin to access course creation routes
-	teacherAdminMw := middleware.RoleMiddleware(string(model.RoleTeacher), string(model.RoleAdmin), string(model.RoleStudent))
+	// Register all routes
+	setupRoutes(r, jwtSecret,
+		authHandler,
+		courseHandler,
+		uploadHandler,
+		certHandler,
+		chatHandler,
+		leaderboardHandler,
+		assignmentHandler,
+		notificationHandler,
+		codingHandler,
+		userHandler,
+	)
 
-	// Static Files
-	r.Static("/uploads", "./uploads")
-
-	// Health Check
-	r.GET("/api/health", func(c *gin.Context) {
-		c.JSON(200, gin.H{"status": "ok"})
-	})
-
-	// Setup API Routes
-	api := r.Group("/api")
-	{
-		// Auth Routes
-		api.POST("/register", authHandler.Register)
-		api.POST("/login", authHandler.Login)
-
-		// Leaderboard Routes
-		api.GET("/leaderboard", leaderboardHandler.GetLeaderboard)
-
-		// Course Routes
-		courses := api.Group("/courses")
-		courses.Use(optAuthMw)
-		{
-			courses.GET("", courseHandler.GetAllCourses)
-			courses.GET("/trending", courseHandler.GetTrendingCourses)
-			courses.GET("/search", courseHandler.SearchCourses)
-			courses.GET("/:id", courseHandler.GetCourseByID)
-			courses.GET("/:id/reviews", courseHandler.GetReviews)
-		}
-
-		protectedCourses := api.Group("/courses") // Recreate without optAuthMw to prevent duplicate middleware runs
-		protectedCourses.Use(authMw)
-		{
-			protectedCourses.POST("/:id/like", courseHandler.LikeCourse)
-			protectedCourses.DELETE("/:id/like", courseHandler.UnlikeCourse)
-			protectedCourses.POST("/:id/enroll", courseHandler.EnrollCourse)
-			protectedCourses.GET("/:id/enrollment", courseHandler.GetEnrollmentStatus)
-			protectedCourses.POST("/:id/modules/:moduleId/complete", courseHandler.CompleteModule)
-			protectedCourses.POST("/:id/reviews", courseHandler.AddReview)
-
-			// Teacher only
-			teacherCourses := protectedCourses.Group("")
-			teacherCourses.Use(teacherAdminMw)
-			{
-				teacherCourses.POST("", courseHandler.CreateCourse)
-				teacherCourses.PUT("/:id", courseHandler.UpdateCourse)
-				teacherCourses.PATCH("/:id", courseHandler.UpdateCourse)
-				teacherCourses.DELETE("/:id", courseHandler.DeleteCourse)
-				teacherCourses.POST("/:id/modules", courseHandler.CreateModule)
-				teacherCourses.PUT("/:id/modules/:moduleId", courseHandler.UpdateModule)
-				teacherCourses.PATCH("/:id/modules/:moduleId", courseHandler.UpdateModule)
-				teacherCourses.PUT("/:id/modules/reorder", courseHandler.ReorderModules)
-				teacherCourses.DELETE("/:id/modules/:moduleId", courseHandler.DeleteModule)
-
-				// Assignment specific Teacher routes
-				teacherCourses.POST("/:id/assignments", assignmentHandler.CreateAssignment)
-				teacherCourses.PUT("/:id/assignments/:assignmentId", assignmentHandler.UpdateAssignment)
-				teacherCourses.DELETE("/:id/assignments/:assignmentId", assignmentHandler.DeleteAssignment)
-				teacherCourses.GET("/:id/assignments/:assignmentId/submissions", assignmentHandler.GetSubmissions)
-				teacherCourses.PUT("/:id/assignments/:assignmentId/submissions/:submissionId/grade", assignmentHandler.GradeSubmission)
-
-				// Coding Assignment Teacher routes
-				teacherCourses.POST("/:id/coding-assignments", codingHandler.CreateCodingAssignment)
-				teacherCourses.PUT("/:id/coding-assignments/:codingAssignmentId", codingHandler.UpdateCodingAssignment)
-				teacherCourses.DELETE("/:id/coding-assignments/:codingAssignmentId", codingHandler.DeleteCodingAssignment)
-				teacherCourses.GET("/:id/coding-assignments/:codingAssignmentId/submissions", codingHandler.GetSubmissions)
-				teacherCourses.PUT("/:id/coding-assignments/:codingAssignmentId/submissions/:submissionId/grade", codingHandler.GradeSubmission)
-			}
-
-			// Assignment general routes (for Enrolled and Teachers)
-			protectedCourses.GET("/:id/assignments", assignmentHandler.GetAssignments)
-			protectedCourses.GET("/:id/assignments/:assignmentId", assignmentHandler.GetAssignmentByID)
-			protectedCourses.GET("/:id/assignments/:assignmentId/submissions/me", assignmentHandler.GetStudentSubmission)
-			protectedCourses.POST("/:id/assignments/:assignmentId/submit", assignmentHandler.SubmitAssignment)
-
-			// Coding Assignment general routes (students + teachers)
-			protectedCourses.GET("/:id/coding-assignments", codingHandler.GetCodingAssignments)
-			protectedCourses.GET("/:id/coding-assignments/:codingAssignmentId", codingHandler.GetCodingAssignmentByID)
-			protectedCourses.POST("/:id/coding-assignments/:codingAssignmentId/submit", codingHandler.SubmitCode)
-			protectedCourses.GET("/:id/coding-assignments/:codingAssignmentId/submissions/me", codingHandler.GetMySubmission)
-		}
-
-		// Code Execution (free sandbox - auth required)
-		codeRun := api.Group("/code")
-		codeRun.Use(authMw)
-		{
-			codeRun.POST("/run", codingHandler.RunCode)
-		}
-
-		// Upload Routes
-		// Note: video uploading is restricted to teachers/admins explicitly. Image is open for avatars.
-		upload := api.Group("/upload")
-		upload.Use(authMw)
-		{
-			upload.POST("/video", teacherAdminMw, uploadHandler.UploadVideo)
-			upload.POST("/image", uploadHandler.UploadImage)
-			upload.POST("/attachment", uploadHandler.UploadAttachment)
-		}
-
-		// Certificate Routes
-		certs := api.Group("/certificates")
-		certs.Use(authMw)
-		{
-			certs.POST("/generate", certHandler.GenerateCertificate)
-		}
-
-		// Chat API Routes
-		chat := api.Group("/chat")
-		chat.Use(authMw)
-		{
-			chat.GET("/conversations", chatHandler.GetConversations)
-			chat.POST("/conversations", chatHandler.CreateConversation)
-			chat.GET("/conversations/:id/messages", chatHandler.GetMessages)
-		}
-
-		// Notification Routes
-		notifications := api.Group("/notifications")
-		notifications.Use(authMw)
-		{
-			notifications.GET("", notificationHandler.GetNotifications)
-			notifications.GET("/unread-count", notificationHandler.GetUnreadCount)
-			notifications.PUT("/:id/read", notificationHandler.MarkAsRead)
-		}
-	}
-
-	// WebSocket Routes
-	r.GET("/ws/chat", chatHandler.ServeWS)
-	userHandler := handler.NewUserHandler(userService)
-
-	user := api.Group("/users")
-	user.Use(authMw)
-	{
-		user.GET("", userHandler.List)
-		user.PUT("/profile", userHandler.UpdateProfile)
-		user.GET("/:id/enrolments", userHandler.Enrolments)
-	}
 	// Start server
 	if err := r.Run(":" + cfg.ServerPort); err != nil {
 		log.Fatalf("Server failed to start: %v", err)
 	}
-
 }

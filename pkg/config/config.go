@@ -14,6 +14,7 @@ type Config struct {
 	DBName     string
 	DBPort     string
 	ServerPort string
+	ServerURL  string
 }
 
 func LoadConfig() *Config {
@@ -29,6 +30,7 @@ func LoadConfig() *Config {
 		DBName:     getEnv("DB_NAME", "esdc_lms"),
 		DBPort:     getEnv("DB_PORT", "5432"),
 		ServerPort: getEnv("SERVER_PORT", "8090"),
+		ServerURL:  getEnv("SERVER_URL", "http://localhost"),
 	}
 }
 
