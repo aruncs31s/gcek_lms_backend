@@ -1,4 +1,4 @@
-tmp/main
+tmp/
 uploads
 server
 .env
