@@ -110,6 +110,7 @@ func main() {
 		{
 			courses.GET("", courseHandler.GetAllCourses)
 			courses.GET("/trending", courseHandler.GetTrendingCourses)
+			courses.GET("/search", courseHandler.SearchCourses)
 			courses.GET("/:id", courseHandler.GetCourseByID)
 			courses.GET("/:id/reviews", courseHandler.GetReviews)
 		}

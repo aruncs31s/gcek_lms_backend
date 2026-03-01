@@ -10,27 +10,96 @@ import (
 )
 
 type CourseService interface {
-	CreateCourse(teacherID uuid.UUID, req *dto.CreateCourseRequest) (*dto.CourseResponse, error)
-	GetCourseByID(id uuid.UUID, userID uuid.UUID) (*dto.CourseResponse, error)
-	GetAllCourses(userID uuid.UUID, query string, courseType string, status string) ([]dto.CourseResponse, error)
-	UpdateCourse(id uuid.UUID, teacherID uuid.UUID, req *dto.UpdateCourseRequest) (*dto.CourseResponse, error)
-	DeleteCourse(id uuid.UUID, teacherID uuid.UUID) error
+	CreateCourse(
+		teacherID uuid.UUID,
+		req *dto.CreateCourseRequest,
+	) (*dto.CourseResponse, error)
+	GetCourseByID(
+		id uuid.UUID,
+		userID uuid.UUID,
+	) (*dto.CourseResponse, error)
+	GetAllCourses(
+		userID uuid.UUID,
+		query string,
+		courseType string,
+		format string,
+		status string,
+	) ([]dto.CourseResponse, error)
+	UpdateCourse(
+		id uuid.UUID,
+		teacherID uuid.UUID,
+		req *dto.UpdateCourseRequest,
+	) (*dto.CourseResponse, error)
+	DeleteCourse(
+		id uuid.UUID,
+		teacherID uuid.UUID,
+	) error
 
-	CreateModule(courseID uuid.UUID, teacherID uuid.UUID, req *dto.CreateModuleRequest) (*dto.ModuleResponse, error)
-	UpdateModule(courseID uuid.UUID, moduleID uuid.UUID, teacherID uuid.UUID, req *dto.UpdateModuleRequest) (*dto.ModuleResponse, error)
-	DeleteModule(id uuid.UUID, teacherID uuid.UUID) error
-	ReorderModules(courseID uuid.UUID, teacherID uuid.UUID, req *dto.ReorderModulesRequest) error
+	CreateModule(
+		courseID uuid.UUID,
+		teacherID uuid.UUID,
+		req *dto.CreateModuleRequest,
+	) (*dto.ModuleResponse, error)
+	UpdateModule(
+		courseID uuid.UUID,
+		moduleID uuid.UUID,
+		teacherID uuid.UUID,
+		req *dto.UpdateModuleRequest,
+	) (*dto.ModuleResponse, error)
+	DeleteModule(
+		id uuid.UUID,
+		teacherID uuid.UUID,
+	) error
+	ReorderModules(
+		courseID uuid.UUID,
+		teacherID uuid.UUID,
+		req *dto.ReorderModulesRequest,
+	) error
 
-	EnrollCourse(courseID uuid.UUID, userID uuid.UUID) error
-	GetEnrollmentStatus(courseID uuid.UUID, userID uuid.UUID) (*model.Enrollment, error)
-	CompleteModule(courseID uuid.UUID, moduleID uuid.UUID, userID uuid.UUID) error
+	EnrollCourse(
+		courseID uuid.UUID,
+		userID uuid.UUID,
+	) error
+	GetEnrollmentStatus(
+		courseID uuid.UUID,
+		userID uuid.UUID,
+	) (*model.Enrollment, error)
+	CompleteModule(
+		courseID uuid.UUID,
+		moduleID uuid.UUID,
+		userID uuid.UUID,
+	) error
 
-	LikeCourse(courseID uuid.UUID, userID uuid.UUID) error
-	UnlikeCourse(courseID uuid.UUID, userID uuid.UUID) error
-	GetTrendingCourses(limit int, userID uuid.UUID) ([]dto.CourseResponse, error)
+	LikeCourse(
+		courseID uuid.UUID,
+		userID uuid.UUID,
+	) error
+	UnlikeCourse(
+		courseID uuid.UUID,
+		userID uuid.UUID,
+	) error
+	GetTrendingCourses(
+		limit int,
+		userID uuid.UUID,
+	) ([]dto.CourseResponse, error)
 
-	AddReview(courseID uuid.UUID, userID uuid.UUID, req *dto.CreateCourseReviewRequest) (*dto.CourseReviewResponse, error)
-	GetReviews(courseID uuid.UUID) ([]dto.CourseReviewResponse, error)
+	AddReview(
+		courseID uuid.UUID,
+		userID uuid.UUID,
+		req *dto.CreateCourseReviewRequest,
+	) (*dto.CourseReviewResponse, error)
+	GetReviews(
+		courseID uuid.UUID,
+	) ([]dto.CourseReviewResponse, error)
+
+	SearchCourses(
+		query string,
+		courseType string,
+		format string,
+		status string,
+		limit int,
+		offset int,
+	) ([]dto.CourseSearchResponse, error)
 }
 
 type courseService struct {
@@ -49,6 +118,7 @@ func (s *courseService) CreateCourse(teacherID uuid.UUID, req *dto.CreateCourseR
 		ThumbnailURL: req.ThumbnailURL,
 		Price:        req.Price,
 		Type:         req.Type,
+		Format:       req.Format,
 		Status:       req.Status,
 		Duration:     req.Duration,
 		StartDate:    req.StartDate,
@@ -56,6 +126,9 @@ func (s *courseService) CreateCourse(teacherID uuid.UUID, req *dto.CreateCourseR
 
 	if course.Type == "" {
 		course.Type = "paid"
+	}
+	if course.Format == "" {
+		course.Format = "course"
 	}
 	if course.Status == "" {
 		course.Status = "not started"
@@ -80,8 +153,14 @@ func (s *courseService) GetCourseByID(id uuid.UUID, userID uuid.UUID) (*dto.Cour
 	return s.mapToCourseResponse(course, userID), nil
 }
 
-func (s *courseService) GetAllCourses(userID uuid.UUID, query string, courseType string, status string) ([]dto.CourseResponse, error) {
-	courses, err := s.courseRepo.GetAllCourses(query, courseType, status)
+func (s *courseService) GetAllCourses(
+	userID uuid.UUID,
+	query string,
+	courseType string,
+	format string,
+	status string,
+) ([]dto.CourseResponse, error) {
+	courses, err := s.courseRepo.GetAllCourses(query, courseType, format, status)
 	if err != nil {
 		return nil, err
 	}
@@ -122,6 +201,9 @@ func (s *courseService) UpdateCourse(id uuid.UUID, teacherID uuid.UUID, req *dto
 	}
 	if req.Type != nil {
 		course.Type = *req.Type
+	}
+	if req.Format != nil {
+		course.Format = *req.Format
 	}
 	if req.Status != nil {
 		course.Status = *req.Status
@@ -409,6 +491,7 @@ func (s *courseService) mapToCourseResponse(course *model.Course, userID uuid.UU
 		ThumbnailURL:  course.ThumbnailURL,
 		Price:         course.Price,
 		Type:          course.Type,
+		Format:        course.Format,
 		Status:        course.Status,
 		Duration:      course.Duration,
 		StartDate:     course.StartDate,
@@ -530,4 +613,23 @@ func (s *courseService) GetReviews(courseID uuid.UUID) ([]dto.CourseReviewRespon
 	}
 
 	return res, nil
+}
+func (s *courseService) SearchCourses(query string, courseType string, format string, status string, limit int, offset int) ([]dto.CourseSearchResponse, error) {
+	courses, err := s.courseRepo.SearchCourses(query, courseType, format, status, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+
+	var responses []dto.CourseSearchResponse
+	for _, c := range courses {
+		responses = append(responses, dto.CourseSearchResponse{
+			ID:           c.ID.String(),
+			Title:        c.Title,
+			ThumbnailURL: c.ThumbnailURL,
+		})
+	}
+	if responses == nil {
+		responses = []dto.CourseSearchResponse{}
+	}
+	return responses, nil
 }

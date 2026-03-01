@@ -15,6 +15,7 @@ type Course struct {
 	ThumbnailURL string     `gorm:"type:varchar(255)"`
 	Price        float64    `gorm:"type:decimal(10,2);default:0"`
 	Type         string     `gorm:"type:varchar(50);default:'paid'"`        // free, paid
+	Format       string     `gorm:"type:varchar(50);default:'course'"`      // course, project
 	Status       string     `gorm:"type:varchar(50);default:'coming soon'"` // coming soon, active, ended
 	Duration     string     `gorm:"type:varchar(255)"`
 	StartDate    *time.Time `gorm:"type:timestamp"`

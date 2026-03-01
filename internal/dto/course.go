@@ -8,6 +8,7 @@ type CreateCourseRequest struct {
 	ThumbnailURL string     `json:"thumbnail_url"`
 	Price        float64    `json:"price" validate:"gte=0"`
 	Type         string     `json:"type" validate:"omitempty,oneof=free paid"`
+	Format       string     `json:"format" validate:"omitempty,oneof=course project"`
 	Status       string     `json:"status" validate:"omitempty,oneof='coming soon' active ended"`
 	Duration     string     `json:"duration"`
 	StartDate    *time.Time `json:"start_date"`
@@ -19,6 +20,7 @@ type UpdateCourseRequest struct {
 	ThumbnailURL *string    `json:"thumbnail_url"`
 	Price        *float64   `json:"price" validate:"omitempty,gte=0"`
 	Type         *string    `json:"type" validate:"omitempty,oneof=free paid"`
+	Format       *string    `json:"format" validate:"omitempty,oneof=course project"`
 	Status       *string    `json:"status" validate:"omitempty,oneof='coming soon' active ended"`
 	Duration     *string    `json:"duration"`
 	StartDate    *time.Time `json:"start_date"`
@@ -35,6 +37,7 @@ type CourseResponse struct {
 	ThumbnailURL  string           `json:"thumbnail_url"`
 	Price         float64          `json:"price"`
 	Type          string           `json:"type"`
+	Format        string           `json:"format"`
 	Status        string           `json:"status"`
 	Duration      string           `json:"duration,omitempty"`
 	StartDate     *time.Time       `json:"start_date,omitempty"`
@@ -44,6 +47,12 @@ type CourseResponse struct {
 	LikesCount    int64            `json:"likes_count"`
 	IsLiked       bool             `json:"is_liked"`
 	Modules       []ModuleResponse `json:"modules,omitempty"`
+}
+
+type CourseSearchResponse struct {
+	ID           string `json:"id"`
+	Title        string `json:"title"`
+	ThumbnailURL string `json:"thumbnail_url"`
 }
 
 type CreateModuleRequest struct {

@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/aruncs/esdc-lms/internal/dto"
@@ -58,9 +59,9 @@ func (h *CourseHandler) GetAllCourses(c *gin.Context) {
 
 	query := c.Query("query")
 	courseType := c.Query("type")
+	format := c.Query("format")
 	status := c.Query("status")
-
-	courses, err := h.courseService.GetAllCourses(userID, query, courseType, status)
+	courses, err := h.courseService.GetAllCourses(userID, query, courseType, format, status)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -575,4 +576,30 @@ func (h *CourseHandler) GetReviews(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, reviews)
+}
+func (h *CourseHandler) SearchCourses(c *gin.Context) {
+	query := c.Query("query")
+	courseType := c.Query("type")
+	format := c.Query("format")
+	status := c.Query("status")
+	limit := c.Query("limit")
+	offset := c.Query("offset")
+
+	limitInt, err := strconv.Atoi(limit)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid limit"})
+		return
+	}
+	offsetInt, err := strconv.Atoi(offset)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid offset"})
+		return
+	}
+	courses, err := h.courseService.SearchCourses(query, courseType, format, status, limitInt, offsetInt)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, courses)
 }

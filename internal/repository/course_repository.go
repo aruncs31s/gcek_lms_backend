@@ -9,36 +9,109 @@ import (
 )
 
 type CourseRepository interface {
-	CreateCourse(course *model.Course) error
-	GetCourseByID(id uuid.UUID) (*model.Course, error)
-	GetAllCourses(query string, courseType string, status string) ([]model.Course, error)
-	UpdateCourse(course *model.Course) error
-	DeleteCourse(id uuid.UUID) error
+	CourseReader
+	CourseWriter
+}
 
-	CreateModule(module *model.Module) error
-	GetModuleByID(id uuid.UUID) (*model.Module, error)
-	GetModulesByCourseID(courseID uuid.UUID) ([]model.Module, error)
-	GetMaxModuleOrderIndex(courseID uuid.UUID) int
-	UpdateModule(module *model.Module) error
-	DeleteModule(id uuid.UUID) error
-	UpdateModuleOrder(courseID uuid.UUID, orderedIDs []uuid.UUID) error
+type CourseWriter interface {
+	CreateCourse(
+		course *model.Course,
+	) error
+	UpdateCourse(
+		course *model.Course,
+	) error
+	DeleteCourse(
+		id uuid.UUID,
+	) error
 
-	CreateEnrollment(enrollment *model.Enrollment) error
-	GetEnrollment(userID uuid.UUID, courseID uuid.UUID) (*model.Enrollment, error)
+	CreateModule(
+		module *model.Module,
+	) error
+	UpdateModule(
+		module *model.Module,
+	) error
+	DeleteModule(
+		id uuid.UUID,
+	) error
+	UpdateModuleOrder(
+		courseID uuid.UUID,
+		orderedIDs []uuid.UUID,
+	) error
 
-	UpdateModuleProgress(progress *model.ModuleProgress) error
-	GetModuleProgresses(userID uuid.UUID, courseID uuid.UUID) ([]model.ModuleProgress, error)
+	CreateEnrollment(
+		enrollment *model.Enrollment,
+	) error
 
-	// Course Likes and Trending
-	LikeCourse(userID uuid.UUID, courseID uuid.UUID) error
-	UnlikeCourse(userID uuid.UUID, courseID uuid.UUID) error
-	HasUserLikedCourse(userID uuid.UUID, courseID uuid.UUID) (bool, error)
-	GetCourseLikesCount(courseID uuid.UUID) (int64, error)
-	GetTrendingCourses(limit int) ([]model.Course, error)
-	AddPointsToProfile(userID uuid.UUID, points int) error
+	UpdateModuleProgress(
+		progress *model.ModuleProgress,
+	) error
 
-	CreateReview(review *model.CourseReview) error
-	GetReviewsByCourseID(courseID uuid.UUID) ([]model.CourseReview, error)
+	LikeCourse(
+		userID uuid.UUID,
+		courseID uuid.UUID,
+	) error
+	UnlikeCourse(
+		userID uuid.UUID,
+		courseID uuid.UUID,
+	) error
+
+	CreateReview(
+		review *model.CourseReview,
+	) error
+}
+
+type CourseReader interface {
+	GetCourseByID(
+		id uuid.UUID,
+	) (*model.Course, error)
+	GetAllCourses(
+		query string,
+		courseType string,
+		format string,
+		status string,
+	) ([]model.Course, error)
+	GetModulesByCourseID(
+		courseID uuid.UUID,
+	) ([]model.Module, error)
+	GetMaxModuleOrderIndex(
+		courseID uuid.UUID,
+	) int
+	GetModuleByID(
+		id uuid.UUID,
+	) (*model.Module, error)
+	GetEnrollment(
+		userID uuid.UUID,
+		courseID uuid.UUID,
+	) (*model.Enrollment, error)
+	GetModuleProgresses(
+		userID uuid.UUID,
+		courseID uuid.UUID,
+	) ([]model.ModuleProgress, error)
+	HasUserLikedCourse(
+		userID uuid.UUID,
+		courseID uuid.UUID,
+	) (bool, error)
+	GetCourseLikesCount(
+		courseID uuid.UUID,
+	) (int64, error)
+	GetTrendingCourses(
+		limit int,
+	) ([]model.Course, error)
+	GetReviewsByCourseID(
+		courseID uuid.UUID,
+	) ([]model.CourseReview, error)
+	AddPointsToProfile(
+		userID uuid.UUID,
+		points int,
+	) error
+	SearchCourses(
+		query string,
+		courseType string,
+		format string,
+		status string,
+		limit int,
+		offset int,
+	) ([]model.Course, error)
 }
 
 type courseRepository struct {
@@ -65,7 +138,12 @@ func (r *courseRepository) GetCourseByID(id uuid.UUID) (*model.Course, error) {
 	return &course, nil
 }
 
-func (r *courseRepository) GetAllCourses(query string, courseType string, status string) ([]model.Course, error) {
+func (r *courseRepository) GetAllCourses(
+	query string,
+	courseType string,
+	format string,
+	status string,
+) ([]model.Course, error) {
 	var courses []model.Course
 	db := r.db.Preload("Teacher.Profile").Preload("Enrollments")
 
@@ -75,11 +153,14 @@ func (r *courseRepository) GetAllCourses(query string, courseType string, status
 	if courseType != "" {
 		db = db.Where("type = ?", courseType)
 	}
+	if format != "" {
+		db = db.Where("format = ?", format)
+	}
 	if status != "" {
 		db = db.Where("status = ?", status)
 	}
 
-	err := db.Order("created_at desc").Find(&courses).Error
+	err := db.Debug().Order("created_at desc").Find(&courses).Error
 	return courses, err
 }
 
@@ -220,4 +301,29 @@ func (r *courseRepository) GetReviewsByCourseID(courseID uuid.UUID) ([]model.Cou
 	var reviews []model.CourseReview
 	err := r.db.Preload("User.Profile").Where("course_id = ?", courseID).Order("created_at desc").Find(&reviews).Error
 	return reviews, err
+}
+func (r *courseRepository) SearchCourses(query string, courseType string, format string, status string, limit int, offset int) ([]model.Course, error) {
+	var courses []model.Course
+
+	db := r.db.Preload("Teacher.Profile").Preload("Enrollments")
+
+	if query != "" {
+		db = db.Where("LOWER(title) LIKE LOWER(?) OR LOWER(description) LIKE LOWER(?)", "%"+query+"%", "%"+query+"%")
+	}
+	if courseType != "" {
+		db = db.Where("type = ?", courseType)
+	}
+	if format != "" {
+		db = db.Where("format = ?", format)
+	}
+	if status != "" {
+		db = db.Where("status = ?", status)
+	}
+
+	err := db.Select(
+		"courses.ID",
+		"courses.Title",
+		"courses.ThumbnailURL",
+	).Order("created_at desc").Limit(limit).Offset(offset).Find(&courses).Error
+	return courses, err
 }
