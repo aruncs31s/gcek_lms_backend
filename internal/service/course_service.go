@@ -370,9 +370,26 @@ func (s *courseService) UpdateModule(courseID uuid.UUID, moduleID uuid.UUID, tea
 
 func (s *courseService) DeleteModule(id uuid.UUID, teacherID uuid.UUID) error {
 	// Need course repo to get the module first to check ownership
-	// For simplicity, we assume we can delete if it exists.
-	// In production, grab module -> check module.CourseID -> check Course.TeacherID
-	// To keep this MVP lean, we'll try deleting.
+	module, err := s.courseRepo.GetModuleByID(id)
+	if err != nil {
+		return err
+	}
+	if module == nil {
+		return errors.New("module not found")
+	}
+
+	course, err := s.courseRepo.GetCourseByID(module.CourseID)
+	if err != nil {
+		return err
+	}
+	if course == nil {
+		return errors.New("associated course not found")
+	}
+
+	if course.TeacherID != teacherID {
+		return errors.New("forbidden: only the course creator can delete modules")
+	}
+
 	return s.courseRepo.DeleteModule(id)
 }
 
