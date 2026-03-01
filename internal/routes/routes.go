@@ -34,6 +34,10 @@ func SetupRoutes(
 		c.JSON(200, gin.H{"status": "ok"})
 	})
 
+	r.GET("/api/version", func(c *gin.Context) {
+		c.JSON(200, gin.H{"version": "1.0.0"})
+	})
+
 	// WebSocket Routes
 	r.GET("/ws/chat", chatHandler.ServeWS)
 

@@ -15,11 +15,13 @@ type ImageUploadHandler interface {
 	Upload(c *gin.Context)
 }
 type imageUploadHandler struct {
+	UploadDir     string
 	BaseUploadURL string
 }
 
-func NewImageUploadHandler(baseURL string) ImageUploadHandler {
+func NewImageUploadHandler(uploadDir, baseURL string) ImageUploadHandler {
 	return &imageUploadHandler{
+		UploadDir:     uploadDir,
 		BaseUploadURL: baseURL,
 	}
 }
@@ -53,7 +55,7 @@ func (h *imageUploadHandler) Upload(c *gin.Context) {
 	// ext := filepath.Ext(file.Filename)
 	newFileName := getFileName(file.Filename)
 
-	uploadDir := "uploads/images"
+	uploadDir := filepath.Join(h.UploadDir, "images")
 	if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not create upload directory"})
 		return

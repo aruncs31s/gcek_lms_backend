@@ -17,11 +17,13 @@ type AttachmentUploadHandler interface {
 	Upload(c *gin.Context)
 }
 type attachmentUploadHandler struct {
+	UploadDir     string
 	BaseUploadURL string
 }
 
-func NewAttachmentUploadHandler(baseURL string) AttachmentUploadHandler {
+func NewAttachmentUploadHandler(uploadDir, baseURL string) AttachmentUploadHandler {
 	return &attachmentUploadHandler{
+		UploadDir:     uploadDir,
 		BaseUploadURL: baseURL,
 	}
 }
@@ -49,7 +51,7 @@ func (h *attachmentUploadHandler) Upload(c *gin.Context) {
 	ext := filepath.Ext(file.Filename)
 	newFileName := fmt.Sprintf("%d_%s%s", time.Now().UnixNano(), uuid.New().String()[:8], ext)
 
-	uploadDir := "uploads/attachments"
+	uploadDir := filepath.Join(h.UploadDir, "attachments")
 	if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not create upload directory"})
 		return

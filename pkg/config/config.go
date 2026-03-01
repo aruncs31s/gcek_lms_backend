@@ -13,6 +13,7 @@ type Config struct {
 	DBPassword string
 	DBName     string
 	DBPort     string
+	UploadDir  string
 	MediaURL   string
 	ServerPort string
 	ServerURL  string
@@ -37,6 +38,7 @@ func LoadConfig() *Config {
 		LogDir:     mustGetEnv("LOG_DIR"),
 		LogLevel:   mustGetEnv("LOG_LEVEL"),
 		MediaURL:   mustGetEnv("MEDIA_URL"),
+		UploadDir:  mustGetEnv("UPLOAD_DIR"),
 	}
 }
 

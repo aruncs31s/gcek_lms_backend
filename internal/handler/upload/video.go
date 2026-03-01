@@ -17,11 +17,13 @@ type VideoUploadHandler interface {
 	Upload(c *gin.Context)
 }
 type videoUploadHandler struct {
+	UploadDir     string
 	BaseUploadURL string
 }
 
-func NewVideoUploadHandler(baseURL string) *videoUploadHandler {
+func NewVideoUploadHandler(uploadDir, baseURL string) *videoUploadHandler {
 	return &videoUploadHandler{
+		UploadDir:     uploadDir,
 		BaseUploadURL: baseURL,
 	}
 }
@@ -77,7 +79,7 @@ func (h *videoUploadHandler) Upload(c *gin.Context) {
 		file.Filename,
 	)
 
-	uploadDir := "uploads/videos"
+	uploadDir := filepath.Join(h.UploadDir, "videos")
 	if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not create upload directory"})
 		return

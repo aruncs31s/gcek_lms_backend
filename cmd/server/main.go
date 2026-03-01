@@ -56,11 +56,11 @@ func main() {
 	codingService := service.NewCodingService(codingRepo, courseRepo)
 
 	baseURL := cfg.MediaURL
-
+	uploadDir := cfg.UploadDir
 	// Initialize Handlers
 	authHandler := handler.NewAuthHandler(userService)
 	courseHandler := handler.NewCourseHandler(courseService)
-	uploadHandler := handler.NewUploadHandler(baseURL)
+	uploadHandler := handler.NewUploadHandler(uploadDir, baseURL)
 	certHandler := handler.NewCertificateHandler(certService, baseURL)
 	chatHandler := handler.NewChatHandler(chatHub, chatService)
 	leaderboardHandler := handler.NewLeaderboardHandler(userRepo)

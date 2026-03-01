@@ -1,4 +1,4 @@
 tmp/
 uploads
-server
 .env
+tmp/build-errors.log

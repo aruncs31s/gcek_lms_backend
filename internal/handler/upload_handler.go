@@ -25,11 +25,11 @@ func (h *uploadHandler) provide(
 ) {
 	h.uploadType[uploadType] = handler
 }
-func NewUploadHandler(baseURL string) UploadHandler {
+func NewUploadHandler(uploadDir, baseURL string) UploadHandler {
 
-	video := upload.NewVideoUploadHandler(baseURL)
-	image := upload.NewImageUploadHandler(baseURL)
-	attachement := upload.NewAttachmentUploadHandler(baseURL)
+	video := upload.NewVideoUploadHandler(uploadDir, baseURL)
+	image := upload.NewImageUploadHandler(uploadDir, baseURL)
+	attachement := upload.NewAttachmentUploadHandler(uploadDir, baseURL)
 	uploadHandler := &uploadHandler{
 		BaseUploadURL: baseURL,
 		uploadType:    make(map[string]UploadWriter),
