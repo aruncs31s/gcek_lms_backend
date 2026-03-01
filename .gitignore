@@ -1,2 +1,4 @@
 tmp/main
 uploads
+server
+.env
