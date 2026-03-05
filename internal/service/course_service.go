@@ -112,16 +112,17 @@ func NewCourseService(repo repository.CourseRepository) CourseService {
 
 func (s *courseService) CreateCourse(teacherID uuid.UUID, req *dto.CreateCourseRequest) (*dto.CourseResponse, error) {
 	course := &model.Course{
-		TeacherID:    teacherID,
-		Title:        req.Title,
-		Description:  req.Description,
-		ThumbnailURL: req.ThumbnailURL,
-		Price:        req.Price,
-		Type:         req.Type,
-		Format:       req.Format,
-		Status:       req.Status,
-		Duration:     req.Duration,
-		StartDate:    req.StartDate,
+		TeacherID:              teacherID,
+		Title:                  req.Title,
+		Description:            req.Description,
+		ThumbnailURL:           req.ThumbnailURL,
+		Price:                  req.Price,
+		Type:                   req.Type,
+		Format:                 req.Format,
+		Status:                 req.Status,
+		Duration:               req.Duration,
+		IsCertificateAvailable: req.IsCertificateAvailable,
+		StartDate:              req.StartDate,
 	}
 
 	if course.Type == "" {
@@ -210,6 +211,9 @@ func (s *courseService) UpdateCourse(id uuid.UUID, teacherID uuid.UUID, req *dto
 	}
 	if req.Duration != nil {
 		course.Duration = *req.Duration
+	}
+	if req.IsCertificateAvailable != nil {
+		course.IsCertificateAvailable = *req.IsCertificateAvailable
 	}
 	if req.StartDate != nil {
 		course.StartDate = req.StartDate
@@ -498,24 +502,25 @@ func (s *courseService) mapToCourseResponse(course *model.Course, userID uuid.UU
 	}
 
 	resp := &dto.CourseResponse{
-		ID:            course.ID.String(),
-		TeacherID:     course.TeacherID.String(),
-		TeacherName:   course.Teacher.Profile.FirstName + " " + course.Teacher.Profile.LastName,
-		TeacherAvatar: course.Teacher.Profile.AvatarURL,
-		TeacherBio:    course.Teacher.Profile.Bio,
-		Title:         course.Title,
-		Description:   course.Description,
-		ThumbnailURL:  course.ThumbnailURL,
-		Price:         course.Price,
-		Type:          course.Type,
-		Format:        course.Format,
-		Status:        course.Status,
-		Duration:      course.Duration,
-		StartDate:     course.StartDate,
-		CreatedAt:     course.CreatedAt,
-		StudentCount:  len(course.Enrollments),
-		LikesCount:    likesCount,
-		IsLiked:       isLiked,
+		ID:                     course.ID.String(),
+		TeacherID:              course.TeacherID.String(),
+		TeacherName:            course.Teacher.Profile.FirstName + " " + course.Teacher.Profile.LastName,
+		TeacherAvatar:          course.Teacher.Profile.AvatarURL,
+		TeacherBio:             course.Teacher.Profile.Bio,
+		Title:                  course.Title,
+		Description:            course.Description,
+		ThumbnailURL:           course.ThumbnailURL,
+		Price:                  course.Price,
+		Type:                   course.Type,
+		Format:                 course.Format,
+		Status:                 course.Status,
+		Duration:               course.Duration,
+		IsCertificateAvailable: course.IsCertificateAvailable,
+		StartDate:              course.StartDate,
+		CreatedAt:              course.CreatedAt,
+		StudentCount:           len(course.Enrollments),
+		LikesCount:             likesCount,
+		IsLiked:                isLiked,
 	}
 
 	if len(course.Modules) > 0 {
@@ -553,15 +558,20 @@ func (s *courseService) mapToCourseResponse(course *model.Course, userID uuid.UU
 			})
 		}
 
-		// calculate basic progress
+		// calculate basic progress (videos only)
 		completedCount := 0
-		for _, v := range completedModules {
-			if v {
-				completedCount++
+		videoCount := 0
+		for _, m := range course.Modules {
+			if m.Type == "video" {
+				videoCount++
+				if completedModules[m.ID] {
+					completedCount++
+				}
 			}
 		}
-		if len(course.Modules) > 0 {
-			resp.Progress = float64(completedCount) / float64(len(course.Modules)) * 100
+
+		if videoCount > 0 {
+			resp.Progress = float64(completedCount) / float64(videoCount) * 100
 		}
 
 		resp.Modules = modResp

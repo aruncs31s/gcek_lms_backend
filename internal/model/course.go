@@ -8,20 +8,21 @@ import (
 )
 
 type Course struct {
-	ID           uuid.UUID  `gorm:"type:uuid;default:gen_random_uuid();primaryKey"`
-	TeacherID    uuid.UUID  `gorm:"type:uuid;not null;index"`
-	Title        string     `gorm:"type:varchar(255);not null"`
-	Description  string     `gorm:"type:text"`
-	ThumbnailURL string     `gorm:"type:varchar(255)"`
-	Price        float64    `gorm:"type:decimal(10,2);default:0"`
-	Type         string     `gorm:"type:varchar(50);default:'paid'"`        // free, paid
-	Format       string     `gorm:"type:varchar(50);default:'course'"`      // course, project
-	Status       string     `gorm:"type:varchar(50);default:'coming soon'"` // coming soon, active, ended
-	Duration     string     `gorm:"type:varchar(255)"`
-	StartDate    *time.Time `gorm:"type:timestamp"`
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
-	DeletedAt    gorm.DeletedAt `gorm:"index"`
+	ID                     uuid.UUID  `gorm:"type:uuid;default:gen_random_uuid();primaryKey"`
+	TeacherID              uuid.UUID  `gorm:"type:uuid;not null;index"`
+	Title                  string     `gorm:"type:varchar(255);not null"`
+	Description            string     `gorm:"type:text"`
+	ThumbnailURL           string     `gorm:"type:varchar(255)"`
+	Price                  float64    `gorm:"type:decimal(10,2);default:0"`
+	Type                   string     `gorm:"type:varchar(50);default:'paid'"`        // free, paid
+	Format                 string     `gorm:"type:varchar(50);default:'course'"`      // course, project
+	Status                 string     `gorm:"type:varchar(50);default:'coming soon'"` // coming soon, active, ended
+	Duration               string     `gorm:"type:varchar(255)"`
+	IsCertificateAvailable bool       `gorm:"default:false"`
+	StartDate              *time.Time `gorm:"type:timestamp"`
+	CreatedAt              time.Time
+	UpdatedAt              time.Time
+	DeletedAt              gorm.DeletedAt `gorm:"index"`
 
 	Teacher     User         `gorm:"foreignKey:TeacherID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	Modules     []Module     `gorm:"foreignKey:CourseID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
