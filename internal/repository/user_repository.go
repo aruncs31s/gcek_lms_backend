@@ -4,12 +4,14 @@ import (
 	"errors"
 
 	"github.com/aruncs/esdc-lms/internal/model"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type UserRepository interface {
 	CreateUser(user *model.User) error
 	FindByEmail(email string) (*model.User, error)
+	GetUserByID(id uuid.UUID) (*model.User, error)
 	GetLeaderboard(limit int) ([]model.User, error)
 	List(limit, offset int, userType string) ([]model.User, int64, error)
 	GetProfileWithEnrolments(userID string, limit, offset int) (*model.User, []model.Enrollment, int64, error)
@@ -35,6 +37,14 @@ func (r *userRepository) FindByEmail(email string) (*model.User, error) {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil // Return nil, nil to indicate not found clearly
 		}
+		return nil, err
+	}
+	return &user, nil
+}
+
+func (r *userRepository) GetUserByID(id uuid.UUID) (*model.User, error) {
+	var user model.User
+	if err := r.db.Preload("Profile").First(&user, "id = ?", id).Error; err != nil {
 		return nil, err
 	}
 	return &user, nil

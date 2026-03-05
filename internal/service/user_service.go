@@ -5,19 +5,41 @@ import (
 	"time"
 
 	"github.com/aruncs/esdc-lms/internal/dto"
+	"github.com/aruncs/esdc-lms/internal/logger"
 	"github.com/aruncs/esdc-lms/internal/model"
 	"github.com/aruncs/esdc-lms/internal/repository"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 )
 
+var (
+	ErrUserNotFound       = errors.New("user not found")
+	ErrInvalidCredentials = errors.New("invalid email or password")
+	ErrAlreadyExists      = errors.New("email already in use")
+)
+
 type UserService interface {
-	RegisterUser(req *dto.RegisterRequest) (*dto.AuthResponse, error)
-	LoginUser(req *dto.LoginRequest) (*dto.AuthResponse, error)
-	List(limit, offset int, userType string) (users []dto.UserResponseWithType, count int64, err error)
-	Enrolments(limit, offset int, userId string) (*dto.UserProfileEnrolmentsResponse, error)
-	UpdateProfile(userId string, req *dto.UpdateProfileRequest) (*dto.UserResponse, error)
+	RegisterUser(
+		req *dto.RegisterRequest,
+	) (*dto.AuthResponse, error)
+	LoginUser(
+		req *dto.LoginRequest,
+	) (*dto.AuthResponse, error)
+	List(
+		limit,
+		offset int,
+		userType string,
+	) (users []dto.UserResponseWithType, count int64, err error)
+	Enrolments(
+		limit,
+		offset int,
+		userID string) (*dto.UserProfileEnrolmentsResponse, error)
+	UpdateProfile(
+		userID string,
+		req *dto.UpdateProfileRequest,
+	) (*dto.UserResponse, error)
 }
 
 type userService struct {
@@ -38,12 +60,16 @@ func (s *userService) RegisterUser(req *dto.RegisterRequest) (*dto.AuthResponse,
 	// Check if user exists
 	existingUser, _ := s.userRepo.FindByEmail(req.Email)
 	if existingUser != nil {
-		return nil, errors.New("email already in use")
+		return nil, ErrAlreadyExists
 	}
 
 	// Hash password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
+		logger.GetLogger().Error(
+			"Failed to hash password: ",
+			zap.String("err", err.Error()),
+		)
 		return nil, err
 	}
 
@@ -61,11 +87,19 @@ func (s *userService) RegisterUser(req *dto.RegisterRequest) (*dto.AuthResponse,
 	}
 
 	if err := s.userRepo.CreateUser(user); err != nil {
+		logger.GetLogger().Error(
+			"Failed to create user: ",
+			zap.String("err", err.Error()),
+		)
 		return nil, err
 	}
 
 	token, err := s.generateToken(user.ID, string(user.Role))
 	if err != nil {
+		logger.GetLogger().Error(
+			"Failed to generate token: ",
+			zap.String("err", err.Error()),
+		)
 		return nil, err
 	}
 
@@ -86,11 +120,11 @@ func (s *userService) RegisterUser(req *dto.RegisterRequest) (*dto.AuthResponse,
 func (s *userService) LoginUser(req *dto.LoginRequest) (*dto.AuthResponse, error) {
 	user, err := s.userRepo.FindByEmail(req.Email)
 	if err != nil || user == nil {
-		return nil, errors.New("invalid email or password")
+		return nil, ErrInvalidCredentials
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password)); err != nil {
-		return nil, errors.New("invalid email or password")
+		return nil, ErrInvalidCredentials
 	}
 
 	token, err := s.generateToken(user.ID, string(user.Role))
@@ -122,6 +156,7 @@ func (s *userService) generateToken(userID uuid.UUID, role string) (string, erro
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString(s.jwtSecret)
 }
+
 func (s *userService) List(limit, offset int, userType string) ([]dto.UserResponseWithType, int64, error) {
 	users, count, err := s.userRepo.List(limit, offset, userType)
 	if err != nil {

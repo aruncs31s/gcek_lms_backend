@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificate of Completion</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@400;500;600&display=swap');
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 1056px; /* 11 inches */
+            height: 816px; /* 8.5 inches */
+            background-color: #f8f9fa;
+        }
+
+        #certificate {
+            width: 1000px;
+            height: 760px;
+            background: white;
+            border: 15px solid #1a365d;
+            padding: 2rem;
+            box-sizing: border-box;
+            position: relative;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        .inner-border {
+            width: 100%;
+            height: 100%;
+            border: 2px solid #ce9d4d;
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+
+        .header {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            color: #1a365d;
+            margin-bottom: 0.5rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .sub-header {
+            font-size: 1.2rem;
+            color: #4a5568;
+            margin-bottom: 3rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+        }
+
+        .presented-to {
+            font-size: 1rem;
+            color: #718096;
+            margin-bottom: 1rem;
+        }
+
+        .student-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            color: #2d3748;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #ce9d4d;
+            display: inline-block;
+            padding: 0 2rem 0.5rem;
+            font-style: italic;
+        }
+
+        .course-description {
+            font-size: 1.2rem;
+            color: #4a5568;
+            margin-bottom: 1rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+        }
+
+        .course-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: #1a365d;
+            margin-bottom: 3rem;
+            font-weight: 700;
+        }
+
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: auto;
+            padding: 0 4rem;
+        }
+
+        .signature-block {
+            text-align: center;
+            width: 200px;
+        }
+
+        .signature-line {
+            border-top: 1px solid #718096;
+            margin-bottom: 0.5rem;
+            padding-top: 0.5rem;
+        }
+
+        .signature-name {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 1rem;
+        }
+
+        .signature-title {
+            font-size: 0.8rem;
+            color: #718096;
+        }
+
+        .date-issued {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2rem;
+            color: #4a5568;
+        }
+
+        .badge {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 100px;
+            background: #ce9d4d;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border: 4px solid white;
+        }
+
+        .badge::after {
+            content: '★';
+            color: white;
+            font-size: 3rem;
+        }
+    </style>
+</head>
+<body>
+    <div id="certificate">
+        <div class="inner-border">
+            <div class="header">Certificate</div>
+            <div class="sub-header">of Completion</div>
+            
+            <div class="presented-to">This is proudly presented to</div>
+            
+            <div class="student-name">{{.StudentName}}</div>
+            
+            <div class="course-description">
+                For successful completion and demonstrating proficiency in the course
+            </div>
+            
+            <div class="course-name">{{.CourseName}}</div>
+            
+            <div class="footer">
+                <div class="signature-block">
+                    <div class="date-issued">{{.DateIssued}}</div>
+                    <div class="signature-line">Date</div>
+                </div>
+                
+                <div class="badge"></div>
+                
+                <div class="signature-block">
+                    <div class="signature-name">{{.TeacherName}}</div>
+                    <div class="signature-line">Lead Instructor</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
