@@ -24,6 +24,7 @@ type CourseService interface {
 		courseType string,
 		format string,
 		status string,
+		teacherID string,
 	) ([]dto.CourseResponse, error)
 	UpdateCourse(
 		id uuid.UUID,
@@ -160,8 +161,9 @@ func (s *courseService) GetAllCourses(
 	courseType string,
 	format string,
 	status string,
+	teacherID string,
 ) ([]dto.CourseResponse, error) {
-	courses, err := s.courseRepo.GetAllCourses(query, courseType, format, status)
+	courses, err := s.courseRepo.GetAllCourses(query, courseType, format, status, teacherID)
 	if err != nil {
 		return nil, err
 	}

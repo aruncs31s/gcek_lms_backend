@@ -61,7 +61,9 @@ func (h *CourseHandler) GetAllCourses(c *gin.Context) {
 	courseType := c.Query("type")
 	format := c.Query("format")
 	status := c.Query("status")
-	courses, err := h.courseService.GetAllCourses(userID, query, courseType, format, status)
+	teacherID := c.Query("teacher_id")
+
+	courses, err := h.courseService.GetAllCourses(userID, query, courseType, format, status, teacherID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
