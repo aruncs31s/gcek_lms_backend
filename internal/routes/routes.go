@@ -132,9 +132,15 @@ func SetupRoutes(
 
 		// Certificate Routes
 		certs := api.Group("/certificates")
-		certs.Use(authMw)
 		{
-			certs.POST("/generate", certHandler.GenerateCertificate)
+			// Public download route so simple <a> tags can download the file
+			certs.GET("/download", certHandler.DownloadCertificate)
+		}
+
+		protectedCerts := api.Group("/certificates")
+		protectedCerts.Use(authMw)
+		{
+			protectedCerts.POST("/generate", certHandler.GenerateCertificate)
 		}
 
 		// Chat Routes

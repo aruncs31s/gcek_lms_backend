@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/aruncs/esdc-lms/internal/dto"
@@ -35,13 +36,35 @@ func (h *AuthHandler) Register(c *gin.Context) {
 func (h *AuthHandler) Login(c *gin.Context) {
 	var req dto.LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(
+			http.StatusBadRequest,
+			gin.H{
+				"error":   err.Error(),
+				"status":  http.StatusBadRequest,
+				"success": false,
+				"message": "Invalid request payload",
+			},
+		)
 		return
 	}
 
-	res, err := h.userService.LoginUser(&req)
+	res, err := h.userService.LoginUser(
+		&req,
+	)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		if errors.Is(service.ErrInvalidCredentials, err) {
+			c.JSON(
+				http.StatusUnauthorized, gin.H{
+					"error": err.Error(),
+				},
+			)
+			return
+		}
+		c.JSON(
+			http.StatusInternalServerError, gin.H{
+				"error": err.Error(),
+			},
+		)
 		return
 	}
 

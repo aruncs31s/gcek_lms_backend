@@ -69,6 +69,7 @@ type CourseReader interface {
 		courseType string,
 		format string,
 		status string,
+		teacherID string,
 	) ([]model.Course, error)
 	GetModulesByCourseID(
 		courseID uuid.UUID,
@@ -143,6 +144,7 @@ func (r *courseRepository) GetAllCourses(
 	courseType string,
 	format string,
 	status string,
+	teacherID string,
 ) ([]model.Course, error) {
 	var courses []model.Course
 	db := r.db.Preload("Teacher.Profile").Preload("Enrollments")
@@ -158,6 +160,9 @@ func (r *courseRepository) GetAllCourses(
 	}
 	if status != "" {
 		db = db.Where("status = ?", status)
+	}
+	if teacherID != "" {
+		db = db.Where("teacher_id = ?", teacherID)
 	}
 
 	err := db.Debug().Order("created_at desc").Find(&courses).Error

@@ -12,7 +12,10 @@ import (
 )
 
 type CertificateService interface {
-	GenerateCertificate(req *dto.GenerateCertificateRequest, baseURL string) (*dto.CertificateResponse, error)
+	GenerateCertificate(
+		req *dto.GenerateCertificateRequest,
+		baseURL string,
+	) (*dto.CertificateResponse, error)
 }
 
 type certificateService struct {
@@ -56,10 +59,23 @@ func (s *certificateService) GenerateCertificate(req *dto.GenerateCertificateReq
 		return nil, errors.New("course not found")
 	}
 
+	user, err := s.userRepo.GetUserByID(userID)
+	if err != nil || user == nil {
+		return nil, errors.New("user not found")
+	}
+
+	teacherName := "ESDC LMS Instructor"
+	if course.TeacherID != uuid.Nil {
+		teacher, err := s.userRepo.GetUserByID(course.TeacherID)
+		if err == nil && teacher != nil {
+			teacherName = teacher.Profile.FirstName + " " + teacher.Profile.LastName
+		}
+	}
+
 	docModel := certgen.DocumentModel{
-		StudentName: req.UserID, // Replace with User ID name resolution for real integration
+		StudentName: user.Profile.FirstName + " " + user.Profile.LastName,
 		CourseName:  course.Title,
-		TeacherName: "John Teacher", // Replace with real teacher name from teacher ID
+		TeacherName: teacherName,
 		DateIssued:  time.Now().Format("Jan 02, 2006"),
 	}
 
