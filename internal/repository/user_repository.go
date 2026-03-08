@@ -145,8 +145,9 @@ func (r *userRepository) GetUsersByCourse(
 	courseID uuid.UUID,
 ) ([]model.User, error) {
 	var out []model.User
-	err := r.db.
+	err := r.db.Debug().
 		WithContext(ctx).
+		Preload("Profile").
 		Joins("JOIN enrollments ON enrollments.user_id = users.id").
 		Where("enrollments.course_id = ?", courseID).
 		Find(&out).Error
