@@ -166,6 +166,7 @@ func SetupRoutes(
 		user.Use(authMw)
 		{
 			user.GET("", userHandler.List)
+			user.GET("/search", userHandler.Search)
 			user.PUT("/profile", userHandler.UpdateProfile)
 			user.GET("/:id/enrolments", userHandler.Enrolments)
 		}

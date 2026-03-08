@@ -39,3 +39,10 @@ type UpdateProfileRequest struct {
 	Bio       string `json:"bio"`
 	AvatarURL string `json:"avatar_url"`
 }
+
+type UserSearchRequest struct {
+	Query  string `json:"query" form:"query" validate:"required,min=2"`
+	Role   string `json:"role" form:"role"`
+	Limit  int    `json:"limit" form:"limit"`
+	Offset int    `json:"offset" form:"offset"`
+}

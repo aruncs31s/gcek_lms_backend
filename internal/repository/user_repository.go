@@ -16,6 +16,7 @@ type UserRepository interface {
 	List(limit, offset int, userType string) ([]model.User, int64, error)
 	GetProfileWithEnrolments(userID string, limit, offset int) (*model.User, []model.Enrollment, int64, error)
 	UpdateProfile(profile *model.Profile) error
+	Search(query string, role string, limit, offset int) ([]model.User, int64, error)
 }
 
 type userRepository struct {
@@ -61,6 +62,7 @@ func (r *userRepository) GetLeaderboard(limit int) ([]model.User, error) {
 		Find(&users).Error
 	return users, err
 }
+
 func (r *userRepository) List(limit, offset int, userType string) ([]model.User, int64, error) {
 	var users []model.User
 	var count int64
@@ -88,4 +90,32 @@ func (r *userRepository) GetProfileWithEnrolments(userID string, limit, offset i
 
 func (r *userRepository) UpdateProfile(profile *model.Profile) error {
 	return r.db.Save(profile).Error
+}
+
+func (r *userRepository) Search(query string, role string, limit, offset int) ([]model.User, int64, error) {
+	var users []model.User
+	var count int64
+
+	r.db.Preload("Profile")
+
+	// Search by email, first name, or last name
+	searchPattern := "%" + query + "%"
+	r.db.Where("email ILIKE ?", searchPattern).
+		Or("profiles.first_name ILIKE ?", searchPattern).
+		Or("profiles.last_name ILIKE ?", searchPattern)
+
+	// Filter by role if provided
+	if role != "" && role != "all" {
+		r.db.Where("role = ?", role)
+	}
+
+	// Get total count
+	err := r.db.Model(&model.User{}).Count(&count).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	// Get paginated results
+	err = r.db.Offset(offset).Limit(limit).Find(&users).Error
+	return users, count, err
 }
