@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/aruncs/esdc-lms/internal/model"
 	"github.com/google/uuid"
@@ -92,30 +93,42 @@ func (r *userRepository) UpdateProfile(profile *model.Profile) error {
 	return r.db.Save(profile).Error
 }
 
-func (r *userRepository) Search(query string, role string, limit, offset int) ([]model.User, int64, error) {
+func (r *userRepository) Search(
+	query string,
+	role string,
+	limit, offset int,
+) ([]model.User, int64, error) {
 	var users []model.User
 	var count int64
 
-	r.db.Preload("Profile")
+	db := r.db.Model(&model.User{}).
+		Joins("LEFT JOIN profiles ON profiles.user_id = users.id")
 
 	// Search by email, first name, or last name
-	searchPattern := "%" + query + "%"
-	r.db.Where("email ILIKE ?", searchPattern).
-		Or("profiles.first_name ILIKE ?", searchPattern).
-		Or("profiles.last_name ILIKE ?", searchPattern)
-
-	// Filter by role if provided
-	if role != "" && role != "all" {
-		r.db.Where("role = ?", role)
+	if query != "" {
+		searchPattern := "%" + strings.ToLower(query) + "%"
+		db = db.Where(
+			"LOWER(users.email) LIKE ? OR LOWER(profiles.first_name) LIKE ? OR LOWER(profiles.last_name) LIKE ?",
+			searchPattern, searchPattern, searchPattern,
+		)
 	}
 
-	// Get total count
-	err := r.db.Model(&model.User{}).Count(&count).Error
+	// Filter by role
+	if role != "" && role != "all" {
+		db = db.Where("users.role = ?", role)
+	}
+
+	// Count before pagination
+	err := db.Count(&count).Error
 	if err != nil {
 		return nil, 0, err
 	}
 
-	// Get paginated results
-	err = r.db.Offset(offset).Limit(limit).Find(&users).Error
+	// Fetch paginated data
+	err = db.Preload("Profile").
+		Offset(offset).
+		Limit(limit).
+		Find(&users).Error
+
 	return users, count, err
 }
