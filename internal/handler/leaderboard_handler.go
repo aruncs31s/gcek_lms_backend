@@ -16,6 +16,14 @@ func NewLeaderboardHandler(userRepo repository.UserRepository) *LeaderboardHandl
 	return &LeaderboardHandler{userRepo: userRepo}
 }
 
+// GetLeaderboard godoc
+// @Summary      Get leaderboard
+// @Description  Returns the top 50 users sorted by points.
+// @Tags         leaderboard
+// @Produce      json
+// @Success      200  {array}   dto.LeaderboardUserResponse
+// @Failure      500  {object}  map[string]string
+// @Router       /api/leaderboard [get]
 func (h *LeaderboardHandler) GetLeaderboard(c *gin.Context) {
 	// Let's get top 50 users
 	users, err := h.userRepo.GetLeaderboard(50)

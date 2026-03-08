@@ -20,6 +20,19 @@ func NewCourseHandler(courseService service.CourseService) *CourseHandler {
 	return &CourseHandler{courseService: courseService}
 }
 
+// CreateCourse godoc
+// @Summary      Create a course
+// @Description  Creates a new course. Requires Teacher or Admin role.
+// @Tags         courses
+// @Accept       json
+// @Produce      json
+// @Param        body  body      dto.CreateCourseRequest  true  "Course creation payload"
+// @Success      201   {object}  dto.CourseResponse
+// @Failure      400   {object}  map[string]string
+// @Failure      401   {object}  map[string]string
+// @Failure      500   {object}  map[string]string
+// @Security     BearerAuth
+// @Router       /api/courses [post]
 func (h *CourseHandler) CreateCourse(c *gin.Context) {
 	userClaimsRaw, exists := c.Get(middleware.UserContextKey)
 	if !exists {
@@ -49,6 +62,19 @@ func (h *CourseHandler) CreateCourse(c *gin.Context) {
 	c.JSON(http.StatusCreated, res)
 }
 
+// GetAllCourses godoc
+// @Summary      List all courses
+// @Description  Returns a list of courses with optional filters.
+// @Tags         courses
+// @Produce      json
+// @Param        query      query  string  false  "Search query"
+// @Param        type       query  string  false  "Course type (free, paid)"
+// @Param        format     query  string  false  "Course format (course, project)"
+// @Param        status     query  string  false  "Course status (coming soon, active, ended)"
+// @Param        teacher_id query  string  false  "Filter by teacher ID (UUID)"
+// @Success      200  {array}   dto.CourseResponse
+// @Failure      500  {object}  map[string]string
+// @Router       /api/courses [get]
 func (h *CourseHandler) GetAllCourses(c *gin.Context) {
 	var userID uuid.UUID
 	if claimsRaw, exists := c.Get(middleware.UserContextKey); exists {
@@ -72,6 +98,17 @@ func (h *CourseHandler) GetAllCourses(c *gin.Context) {
 	c.JSON(http.StatusOK, courses)
 }
 
+// GetCourseByID godoc
+// @Summary      Get course by ID
+// @Description  Returns detailed information about a specific course, including modules.
+// @Tags         courses
+// @Produce      json
+// @Param        id  path      string  true  "Course ID (UUID)"
+// @Success      200  {object}  dto.CourseResponse
+// @Failure      400  {object}  map[string]string
+// @Failure      404  {object}  map[string]string
+// @Failure      500  {object}  map[string]string
+// @Router       /api/courses/{id} [get]
 func (h *CourseHandler) GetCourseByID(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)
@@ -100,6 +137,22 @@ func (h *CourseHandler) GetCourseByID(c *gin.Context) {
 	c.JSON(http.StatusOK, course)
 }
 
+// UpdateCourse godoc
+// @Summary      Update a course
+// @Description  Updates an existing course. Requires Teacher or Admin role.
+// @Tags         courses
+// @Accept       json
+// @Produce      json
+// @Param        id    path      string                   true  "Course ID (UUID)"
+// @Param        body  body      dto.UpdateCourseRequest  true  "Course update payload"
+// @Success      200   {object}  dto.CourseResponse
+// @Failure      400   {object}  map[string]string
+// @Failure      401   {object}  map[string]string
+// @Failure      403   {object}  map[string]string
+// @Failure      404   {object}  map[string]string
+// @Failure      500   {object}  map[string]string
+// @Security     BearerAuth
+// @Router       /api/courses/{id} [put]
 func (h *CourseHandler) UpdateCourse(c *gin.Context) {
 	userClaimsRaw, exists := c.Get(middleware.UserContextKey)
 	if !exists {
@@ -142,6 +195,20 @@ func (h *CourseHandler) UpdateCourse(c *gin.Context) {
 	c.JSON(http.StatusOK, res)
 }
 
+// DeleteCourse godoc
+// @Summary      Delete a course
+// @Description  Deletes a course. Requires Teacher or Admin role.
+// @Tags         courses
+// @Produce      json
+// @Param        id  path  string  true  "Course ID (UUID)"
+// @Success      204
+// @Failure      400  {object}  map[string]string
+// @Failure      401  {object}  map[string]string
+// @Failure      403  {object}  map[string]string
+// @Failure      404  {object}  map[string]string
+// @Failure      500  {object}  map[string]string
+// @Security     BearerAuth
+// @Router       /api/courses/{id} [delete]
 func (h *CourseHandler) DeleteCourse(c *gin.Context) {
 	userClaimsRaw, exists := c.Get(middleware.UserContextKey)
 	if !exists {
@@ -178,6 +245,22 @@ func (h *CourseHandler) DeleteCourse(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
+// CreateModule godoc
+// @Summary      Create a module
+// @Description  Adds a new module to a course. Requires Teacher or Admin role.
+// @Tags         courses
+// @Accept       json
+// @Produce      json
+// @Param        id    path      string                   true  "Course ID (UUID)"
+// @Param        body  body      dto.CreateModuleRequest  true  "Module creation payload"
+// @Success      201   {object}  dto.ModuleResponse
+// @Failure      400   {object}  map[string]string
+// @Failure      401   {object}  map[string]string
+// @Failure      403   {object}  map[string]string
+// @Failure      404   {object}  map[string]string
+// @Failure      500   {object}  map[string]string
+// @Security     BearerAuth
+// @Router       /api/courses/{id}/modules [post]
 func (h *CourseHandler) CreateModule(c *gin.Context) {
 	userClaimsRaw, exists := c.Get(middleware.UserContextKey)
 	if !exists {
@@ -220,6 +303,19 @@ func (h *CourseHandler) CreateModule(c *gin.Context) {
 	c.JSON(http.StatusCreated, res)
 }
 
+// DeleteModule godoc
+// @Summary      Delete a module
+// @Description  Removes a module from a course. Requires Teacher or Admin role.
+// @Tags         courses
+// @Produce      json
+// @Param        id        path  string  true  "Course ID (UUID)"
+// @Param        moduleId  path  string  true  "Module ID (UUID)"
+// @Success      204
+// @Failure      400  {object}  map[string]string
+// @Failure      401  {object}  map[string]string
+// @Failure      500  {object}  map[string]string
+// @Security     BearerAuth
+// @Router       /api/courses/{id}/modules/{moduleId} [delete]
 func (h *CourseHandler) DeleteModule(c *gin.Context) {
 	userClaimsRaw, exists := c.Get(middleware.UserContextKey)
 	if !exists {
@@ -250,6 +346,23 @@ func (h *CourseHandler) DeleteModule(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
+// UpdateModule godoc
+// @Summary      Update a module
+// @Description  Updates an existing module. Requires Teacher or Admin role.
+// @Tags         courses
+// @Accept       json
+// @Produce      json
+// @Param        id        path      string                   true  "Course ID (UUID)"
+// @Param        moduleId  path      string                   true  "Module ID (UUID)"
+// @Param        body      body      dto.UpdateModuleRequest  true  "Module update payload"
+// @Success      200   {object}  dto.ModuleResponse
+// @Failure      400   {object}  map[string]string
+// @Failure      401   {object}  map[string]string
+// @Failure      403   {object}  map[string]string
+// @Failure      404   {object}  map[string]string
+// @Failure      500   {object}  map[string]string
+// @Security     BearerAuth
+// @Router       /api/courses/{id}/modules/{moduleId} [put]
 func (h *CourseHandler) UpdateModule(c *gin.Context) {
 	userClaimsRaw, exists := c.Get(middleware.UserContextKey)
 	if !exists {
@@ -299,6 +412,22 @@ func (h *CourseHandler) UpdateModule(c *gin.Context) {
 	c.JSON(http.StatusOK, res)
 }
 
+// ReorderModules godoc
+// @Summary      Reorder modules
+// @Description  Sets the display order of modules within a course. Requires Teacher or Admin role.
+// @Tags         courses
+// @Accept       json
+// @Produce      json
+// @Param        id    path      string                    true  "Course ID (UUID)"
+// @Param        body  body      dto.ReorderModulesRequest true  "Ordered list of module IDs"
+// @Success      200   {object}  map[string]string
+// @Failure      400   {object}  map[string]string
+// @Failure      401   {object}  map[string]string
+// @Failure      403   {object}  map[string]string
+// @Failure      404   {object}  map[string]string
+// @Failure      500   {object}  map[string]string
+// @Security     BearerAuth
+// @Router       /api/courses/{id}/modules/reorder [put]
 func (h *CourseHandler) ReorderModules(c *gin.Context) {
 	userClaimsRaw, exists := c.Get(middleware.UserContextKey)
 	if !exists {
@@ -341,6 +470,18 @@ func (h *CourseHandler) ReorderModules(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Modules reordered successfully"})
 }
 
+// EnrollCourse godoc
+// @Summary      Enroll in a course
+// @Description  Enrolls the authenticated user in the specified course.
+// @Tags         courses
+// @Produce      json
+// @Param        id  path  string  true  "Course ID (UUID)"
+// @Success      201  {object}  map[string]string
+// @Failure      400  {object}  map[string]string
+// @Failure      401  {object}  map[string]string
+// @Failure      500  {object}  map[string]string
+// @Security     BearerAuth
+// @Router       /api/courses/{id}/enroll [post]
 func (h *CourseHandler) EnrollCourse(c *gin.Context) {
 	userClaimsRaw, exists := c.Get(middleware.UserContextKey)
 	if !exists {
@@ -371,6 +512,18 @@ func (h *CourseHandler) EnrollCourse(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"message": "Successfully enrolled"})
 }
 
+// GetEnrollmentStatus godoc
+// @Summary      Get enrollment status
+// @Description  Returns the authenticated user's enrollment status for a course.
+// @Tags         courses
+// @Produce      json
+// @Param        id  path  string  true  "Course ID (UUID)"
+// @Success      200  {object}  map[string]interface{}
+// @Failure      400  {object}  map[string]string
+// @Failure      401  {object}  map[string]string
+// @Failure      500  {object}  map[string]string
+// @Security     BearerAuth
+// @Router       /api/courses/{id}/enrollment [get]
 func (h *CourseHandler) GetEnrollmentStatus(c *gin.Context) {
 	userClaimsRaw, exists := c.Get(middleware.UserContextKey)
 	if !exists {
@@ -410,6 +563,19 @@ func (h *CourseHandler) GetEnrollmentStatus(c *gin.Context) {
 	})
 }
 
+// CompleteModule godoc
+// @Summary      Mark module as complete
+// @Description  Marks a specific module as completed for the authenticated user.
+// @Tags         courses
+// @Produce      json
+// @Param        id        path  string  true  "Course ID (UUID)"
+// @Param        moduleId  path  string  true  "Module ID (UUID)"
+// @Success      200  {object}  map[string]string
+// @Failure      400  {object}  map[string]string
+// @Failure      401  {object}  map[string]string
+// @Failure      500  {object}  map[string]string
+// @Security     BearerAuth
+// @Router       /api/courses/{id}/modules/{moduleId}/complete [post]
 func (h *CourseHandler) CompleteModule(c *gin.Context) {
 	userClaimsRaw, exists := c.Get(middleware.UserContextKey)
 	if !exists {
@@ -447,6 +613,18 @@ func (h *CourseHandler) CompleteModule(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Module marked as completed"})
 }
 
+// LikeCourse godoc
+// @Summary      Like a course
+// @Description  Adds a like to a course for the authenticated user.
+// @Tags         courses
+// @Produce      json
+// @Param        id  path  string  true  "Course ID (UUID)"
+// @Success      200  {object}  map[string]string
+// @Failure      400  {object}  map[string]string
+// @Failure      401  {object}  map[string]string
+// @Failure      500  {object}  map[string]string
+// @Security     BearerAuth
+// @Router       /api/courses/{id}/like [post]
 func (h *CourseHandler) LikeCourse(c *gin.Context) {
 	userClaimsRaw, exists := c.Get(middleware.UserContextKey)
 	if !exists {
@@ -476,6 +654,18 @@ func (h *CourseHandler) LikeCourse(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Course liked successfully"})
 }
 
+// UnlikeCourse godoc
+// @Summary      Unlike a course
+// @Description  Removes a like from a course for the authenticated user.
+// @Tags         courses
+// @Produce      json
+// @Param        id  path  string  true  "Course ID (UUID)"
+// @Success      200  {object}  map[string]string
+// @Failure      400  {object}  map[string]string
+// @Failure      401  {object}  map[string]string
+// @Failure      500  {object}  map[string]string
+// @Security     BearerAuth
+// @Router       /api/courses/{id}/like [delete]
 func (h *CourseHandler) UnlikeCourse(c *gin.Context) {
 	userClaimsRaw, exists := c.Get(middleware.UserContextKey)
 	if !exists {
@@ -505,6 +695,14 @@ func (h *CourseHandler) UnlikeCourse(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Course unliked successfully"})
 }
 
+// GetTrendingCourses godoc
+// @Summary      Get trending courses
+// @Description  Returns the top trending courses based on enrollment and likes.
+// @Tags         courses
+// @Produce      json
+// @Success      200  {array}   dto.CourseResponse
+// @Failure      500  {object}  map[string]string
+// @Router       /api/courses/trending [get]
 func (h *CourseHandler) GetTrendingCourses(c *gin.Context) {
 	var userID uuid.UUID
 	if claimsRaw, exists := c.Get(middleware.UserContextKey); exists {
@@ -523,6 +721,21 @@ func (h *CourseHandler) GetTrendingCourses(c *gin.Context) {
 	c.JSON(http.StatusOK, courses)
 }
 
+// AddReview godoc
+// @Summary      Add a course review
+// @Description  Submits a rating and comment review for a course.
+// @Tags         courses
+// @Accept       json
+// @Produce      json
+// @Param        id    path      string                     true  "Course ID (UUID)"
+// @Param        body  body      dto.CreateCourseReviewRequest  true  "Review payload"
+// @Success      201   {object}  dto.CourseReviewResponse
+// @Failure      400   {object}  map[string]string
+// @Failure      401   {object}  map[string]string
+// @Failure      404   {object}  map[string]string
+// @Failure      500   {object}  map[string]string
+// @Security     BearerAuth
+// @Router       /api/courses/{id}/reviews [post]
 func (h *CourseHandler) AddReview(c *gin.Context) {
 	userClaimsRaw, exists := c.Get(middleware.UserContextKey)
 	if !exists {
@@ -563,6 +776,16 @@ func (h *CourseHandler) AddReview(c *gin.Context) {
 	c.JSON(http.StatusCreated, res)
 }
 
+// GetReviews godoc
+// @Summary      Get course reviews
+// @Description  Returns all reviews for a specific course.
+// @Tags         courses
+// @Produce      json
+// @Param        id  path  string  true  "Course ID (UUID)"
+// @Success      200  {array}   dto.CourseReviewResponse
+// @Failure      400  {object}  map[string]string
+// @Failure      500  {object}  map[string]string
+// @Router       /api/courses/{id}/reviews [get]
 func (h *CourseHandler) GetReviews(c *gin.Context) {
 	courseIDStr := c.Param("id")
 	courseID, err := uuid.Parse(courseIDStr)
@@ -579,6 +802,21 @@ func (h *CourseHandler) GetReviews(c *gin.Context) {
 
 	c.JSON(http.StatusOK, reviews)
 }
+// SearchCourses godoc
+// @Summary      Search courses
+// @Description  Searches courses by query text with optional filters and pagination.
+// @Tags         courses
+// @Produce      json
+// @Param        query   query  string  false  "Search query text"
+// @Param        type    query  string  false  "Course type (free, paid)"
+// @Param        format  query  string  false  "Course format (course, project)"
+// @Param        status  query  string  false  "Course status (coming soon, active, ended)"
+// @Param        limit   query  int     true   "Maximum number of results"
+// @Param        offset  query  int     true   "Offset for pagination"
+// @Success      200  {array}   dto.CourseSearchResponse
+// @Failure      400  {object}  map[string]string
+// @Failure      500  {object}  map[string]string
+// @Router       /api/courses/search [get]
 func (h *CourseHandler) SearchCourses(c *gin.Context) {
 	query := c.Query("query")
 	courseType := c.Query("type")

@@ -2,3 +2,4 @@ tmp/
 uploads
 .env
 tmp/build-errors.log
+server
