@@ -16,6 +16,16 @@ func NewNotificationHandler(notificationService service.NotificationService) *No
 	return &NotificationHandler{notificationService: notificationService}
 }
 
+// GetNotifications godoc
+// @Summary      Get notifications
+// @Description  Returns all notifications for the authenticated user.
+// @Tags         notifications
+// @Produce      json
+// @Success      200  {array}   dto.NotificationResponse
+// @Failure      401  {object}  map[string]string
+// @Failure      500  {object}  map[string]string
+// @Security     BearerAuth
+// @Router       /api/notifications [get]
 // GetNotifications returns all notifications for the authenticated user
 func (h *NotificationHandler) GetNotifications(c *gin.Context) {
 	userID, err := getUserIdFromContext(c)
@@ -33,6 +43,16 @@ func (h *NotificationHandler) GetNotifications(c *gin.Context) {
 	c.JSON(http.StatusOK, res)
 }
 
+// GetUnreadCount godoc
+// @Summary      Get unread notification count
+// @Description  Returns the count of unread notifications for the authenticated user.
+// @Tags         notifications
+// @Produce      json
+// @Success      200  {object}  map[string]int64
+// @Failure      401  {object}  map[string]string
+// @Failure      500  {object}  map[string]string
+// @Security     BearerAuth
+// @Router       /api/notifications/unread-count [get]
 // GetUnreadCount returns the count of unread notifications
 func (h *NotificationHandler) GetUnreadCount(c *gin.Context) {
 	userID, err := getUserIdFromContext(c)
@@ -50,6 +70,18 @@ func (h *NotificationHandler) GetUnreadCount(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"count": count})
 }
 
+// MarkAsRead godoc
+// @Summary      Mark notification as read
+// @Description  Marks a specific notification as read for the authenticated user.
+// @Tags         notifications
+// @Produce      json
+// @Param        id  path  string  true  "Notification ID (UUID)"
+// @Success      200  {object}  map[string]string
+// @Failure      400  {object}  map[string]string
+// @Failure      401  {object}  map[string]string
+// @Failure      500  {object}  map[string]string
+// @Security     BearerAuth
+// @Router       /api/notifications/{id}/read [put]
 // MarkAsRead marks a specific notification as read
 func (h *NotificationHandler) MarkAsRead(c *gin.Context) {
 	userID, err := getUserIdFromContext(c)

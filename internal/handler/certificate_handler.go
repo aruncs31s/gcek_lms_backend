@@ -24,6 +24,19 @@ func NewCertificateHandler(certService service.CertificateService, baseURL strin
 	}
 }
 
+// GenerateCertificate godoc
+// @Summary      Generate a certificate
+// @Description  Generates a PDF certificate for a user who completed a course.
+// @Tags         certificates
+// @Accept       json
+// @Produce      json
+// @Param        body  body      dto.GenerateCertificateRequest  true  "Certificate generation payload"
+// @Success      201   {object}  dto.CertificateResponse
+// @Failure      400   {object}  map[string]string
+// @Failure      401   {object}  map[string]string
+// @Failure      500   {object}  map[string]string
+// @Security     BearerAuth
+// @Router       /api/certificates/generate [post]
 func (h *CertificateHandler) GenerateCertificate(c *gin.Context) {
 	_, exists := c.Get(middleware.UserContextKey)
 	if !exists {
@@ -46,6 +59,17 @@ func (h *CertificateHandler) GenerateCertificate(c *gin.Context) {
 	c.JSON(http.StatusCreated, res)
 }
 
+// DownloadCertificate godoc
+// @Summary      Download a certificate
+// @Description  Downloads a certificate PDF file by filename.
+// @Tags         certificates
+// @Produce      application/pdf
+// @Param        file  query  string  true   "Certificate filename (e.g. cert-uuid.pdf)"
+// @Param        name  query  string  false  "Course name used in the download filename"
+// @Success      200  {file}    binary
+// @Failure      400  {object}  map[string]string
+// @Failure      404  {object}  map[string]string
+// @Router       /api/certificates/download [get]
 func (h *CertificateHandler) DownloadCertificate(c *gin.Context) {
 	fileName := c.Query("file")
 	courseName := c.DefaultQuery("name", "Certificate")
