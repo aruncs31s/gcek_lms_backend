@@ -40,6 +40,12 @@ type UserService interface {
 		userID string,
 		req *dto.UpdateProfileRequest,
 	) (*dto.UserResponse, error)
+	Search(
+		query string,
+		role string,
+		limit,
+		offset int,
+	) (users []dto.UserResponse, count int64, err error)
 }
 
 type userService struct {
@@ -262,4 +268,41 @@ func (s *userService) UpdateProfile(userId string, req *dto.UpdateProfileRequest
 		AvatarURL: user.Profile.AvatarURL,
 		Bio:       user.Profile.Bio,
 	}, nil
+}
+
+func (s *userService) Search(query string, role string, limit, offset int) ([]dto.UserResponse, int64, error) {
+	if limit == 0 {
+		limit = 50
+	}
+	if limit > 100 {
+		limit = 100
+	}
+
+	if valid := model.Role(role).IsValid(); role != "" && !valid {
+		return nil, 0, errors.New("invalid role filter")
+	}
+	users, count, err := s.userRepo.Search(query, role, limit, offset)
+	if err != nil {
+		logger.GetLogger().Error(
+			"Failed to search users",
+			zap.String("query", query),
+			zap.String("err", err.Error()),
+		)
+		return nil, 0, err
+	}
+
+	var result []dto.UserResponse
+	for _, user := range users {
+		result = append(result, dto.UserResponse{
+			ID:        user.ID.String(),
+			FirstName: user.Profile.FirstName,
+			LastName:  user.Profile.LastName,
+			Email:     user.Email,
+			Role:      string(user.Role),
+			AvatarURL: user.Profile.AvatarURL,
+			Bio:       user.Profile.Bio,
+		})
+	}
+
+	return result, count, nil
 }

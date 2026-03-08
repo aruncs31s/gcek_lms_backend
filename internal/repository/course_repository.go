@@ -307,6 +307,7 @@ func (r *courseRepository) GetReviewsByCourseID(courseID uuid.UUID) ([]model.Cou
 	err := r.db.Preload("User.Profile").Where("course_id = ?", courseID).Order("created_at desc").Find(&reviews).Error
 	return reviews, err
 }
+
 func (r *courseRepository) SearchCourses(query string, courseType string, format string, status string, limit int, offset int) ([]model.Course, error) {
 	var courses []model.Course
 
@@ -326,9 +327,9 @@ func (r *courseRepository) SearchCourses(query string, courseType string, format
 	}
 
 	err := db.Select(
-		"courses.ID",
-		"courses.Title",
-		"courses.ThumbnailURL",
+		"courses.id",
+		"courses.title",
+		"courses.thumbnail_url",
 	).Order("created_at desc").Limit(limit).Offset(offset).Find(&courses).Error
 	return courses, err
 }

@@ -67,7 +67,7 @@ func main() {
 	// Initialize Services
 	jwtSecret := cfg.JWTSecret
 	userService := service.NewUserService(userRepo, achievementRepo, jwtSecret)
-	courseService := service.NewCourseService(courseRepo)
+	courseService := service.NewCourseService(courseRepo, userRepo)
 	certService := service.NewCertificateService(certRepo, userRepo, courseRepo, orchestrator)
 	chatService := service.NewChatService(chatRepo)
 	ocrClient := ocr.NewClient("http://localhost:8000")

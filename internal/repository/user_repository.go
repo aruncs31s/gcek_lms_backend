@@ -1,7 +1,9 @@
 package repository
 
 import (
+	"context"
 	"errors"
+	"strings"
 
 	"github.com/aruncs/esdc-lms/internal/model"
 	"github.com/google/uuid"
@@ -16,6 +18,12 @@ type UserRepository interface {
 	List(limit, offset int, userType string) ([]model.User, int64, error)
 	GetProfileWithEnrolments(userID string, limit, offset int) (*model.User, []model.Enrollment, int64, error)
 	UpdateProfile(profile *model.Profile) error
+	Search(query string, role string, limit, offset int) ([]model.User, int64, error)
+	GetUsersByCourse(
+		ctx context.Context,
+		courseID uuid.UUID,
+	) ([]model.User, error)
+	GetUserCountByCourse(ctx context.Context, courseID uuid.UUID) (int64, error)
 }
 
 type userRepository struct {
@@ -61,6 +69,7 @@ func (r *userRepository) GetLeaderboard(limit int) ([]model.User, error) {
 		Find(&users).Error
 	return users, err
 }
+
 func (r *userRepository) List(limit, offset int, userType string) ([]model.User, int64, error) {
 	var users []model.User
 	var count int64
@@ -88,4 +97,75 @@ func (r *userRepository) GetProfileWithEnrolments(userID string, limit, offset i
 
 func (r *userRepository) UpdateProfile(profile *model.Profile) error {
 	return r.db.Save(profile).Error
+}
+
+func (r *userRepository) Search(
+	query string,
+	role string,
+	limit, offset int,
+) ([]model.User, int64, error) {
+	var users []model.User
+	var count int64
+
+	db := r.db.
+		Model(&model.User{}).
+		Joins("LEFT JOIN profiles ON profiles.user_id = users.id")
+
+	// Search by email, first name, or last name
+	if query != "" {
+		searchPattern := "%" + strings.ToLower(query) + "%"
+		db = db.Where(
+			"LOWER(users.email) LIKE ? OR LOWER(profiles.first_name) LIKE ? OR LOWER(profiles.last_name) LIKE ?",
+			searchPattern, searchPattern, searchPattern,
+		)
+	}
+
+	// Filter by role
+	if role != "" && role != "all" {
+		db = db.Where("users.role = ?", role)
+	}
+
+	// Count before pagination
+	err := db.Count(&count).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	// Fetch paginated data
+	err = db.Preload("Profile").
+		Offset(offset).
+		Limit(limit).
+		Find(&users).Error
+
+	return users, count, err
+}
+
+func (r *userRepository) GetUsersByCourse(
+	ctx context.Context,
+	courseID uuid.UUID,
+) ([]model.User, error) {
+	var out []model.User
+	err := r.db.Debug().
+		WithContext(ctx).
+		Preload("Profile").
+		Joins("JOIN enrollments ON enrollments.user_id = users.id").
+		Where("enrollments.course_id = ?", courseID).
+		Find(&out).Error
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+func (r *userRepository) GetUserCountByCourse(ctx context.Context, courseID uuid.UUID) (int64, error) {
+	var count int64
+	err := r.db.
+		WithContext(ctx).
+		Model(&model.User{}).
+		Joins("JOIN enrollments ON enrollments.user_id = users.id").
+		Where("enrollments.course_id = ?", courseID).
+		Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
 }

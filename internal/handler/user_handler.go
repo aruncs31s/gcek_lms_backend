@@ -126,3 +126,41 @@ func (h *UserHandler) UpdateProfile(c *gin.Context) {
 
 	c.JSON(http.StatusOK, res)
 }
+
+func (h *UserHandler) Search(c *gin.Context) {
+	query := c.Query("query")
+
+	role := c.Query("role")
+
+	limitStr := c.Query("limit")
+	offsetStr := c.Query("offset")
+
+	if query == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Search query is required"})
+		return
+	}
+
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil || limit <= 0 {
+		limit = 50
+	}
+	if limit > 100 {
+		limit = 100
+	}
+
+	offset, err := strconv.Atoi(offsetStr)
+	if err != nil || offset < 0 {
+		offset = 0
+	}
+
+	users, count, err := h.us.Search(query, role, limit, offset)
+	if err != nil {
+		users = []dto.UserResponse{}
+		count = 0
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"users":       users,
+		"total_users": count,
+	})
+}

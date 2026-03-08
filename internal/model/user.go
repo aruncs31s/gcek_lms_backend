@@ -15,6 +15,15 @@ const (
 	RoleAdmin   Role = "admin"
 )
 
+func (r Role) IsValid() bool {
+	switch r {
+	case RoleStudent, RoleTeacher, RoleAdmin:
+		return true
+	default:
+		return false
+	}
+}
+
 type User struct {
 	ID           uuid.UUID `gorm:"type:uuid;default:gen_random_uuid();primaryKey"`
 	Email        string    `gorm:"type:varchar(255);uniqueIndex;not null"`
@@ -26,6 +35,22 @@ type User struct {
 
 	Profile     Profile      `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	Enrollments []Enrollment `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+}
+
+func (u *User) IsAdmin() bool {
+	return u.Role == RoleAdmin
+}
+
+func (u *User) IsTeacher() bool {
+	return u.Role == RoleTeacher
+}
+
+func (u *User) IsStudent() bool {
+	return u.Role == RoleStudent
+}
+
+func (u *User) TableName() string {
+	return "users"
 }
 
 func (u *User) BeforeCreate(tx *gorm.DB) (err error) {

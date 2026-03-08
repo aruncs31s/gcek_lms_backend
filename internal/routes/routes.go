@@ -74,6 +74,8 @@ func SetupRoutes(
 			protectedCourses.DELETE("/:id/like", courseHandler.UnlikeCourse)
 			protectedCourses.POST("/:id/enroll", courseHandler.EnrollCourse)
 			protectedCourses.GET("/:id/enrollment", courseHandler.GetEnrollmentStatus)
+			protectedCourses.GET("/:id/enrollments/users", courseHandler.GetEntrolledUsers)
+			protectedCourses.GET("/:id/enrollments/users/count", courseHandler.GetEntrolledUsersCount)
 			protectedCourses.POST("/:id/modules/:moduleId/complete", courseHandler.CompleteModule)
 			protectedCourses.POST("/:id/reviews", courseHandler.AddReview)
 
@@ -171,6 +173,7 @@ func SetupRoutes(
 		user.Use(authMw)
 		{
 			user.GET("", userHandler.List)
+			user.GET("/search", userHandler.Search)
 			user.PUT("/profile", userHandler.UpdateProfile)
 			user.GET("/:id/enrolments", userHandler.Enrolments)
 		}
