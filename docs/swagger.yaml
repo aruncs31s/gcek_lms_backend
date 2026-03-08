@@ -1,0 +1,3119 @@
+basePath: /
+definitions:
+  dto.AchievementResponse:
+    properties:
+      description:
+        type: string
+      earned_at:
+        type: string
+      icon_url:
+        type: string
+      id:
+        type: string
+      points:
+        type: integer
+      title:
+        type: string
+    type: object
+  dto.AssignmentResponse:
+    properties:
+      course_id:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      due_date:
+        type: string
+      id:
+        type: string
+      max_score:
+        type: integer
+      title:
+        type: string
+    type: object
+  dto.AssignmentSubmissionResponse:
+    properties:
+      assignment_id:
+        type: string
+      extracted_text:
+        type: string
+      feedback:
+        type: string
+      file_url:
+        type: string
+      graded_at:
+        type: string
+      id:
+        type: string
+      score:
+        type: integer
+      submitted_at:
+        type: string
+      user_id:
+        type: string
+      user_name:
+        type: string
+    type: object
+  dto.AuthResponse:
+    properties:
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/dto.UserResponse'
+    type: object
+  dto.CertificateResponse:
+    properties:
+      course_id:
+        type: string
+      file_url:
+        type: string
+      id:
+        type: string
+      issued_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  dto.CodingAssignmentResponse:
+    properties:
+      course_id:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      due_date:
+        type: string
+      id:
+        type: string
+      language:
+        type: string
+      max_score:
+        type: integer
+      starter_code:
+        type: string
+      test_cases:
+        description: hidden test cases stripped for students
+        items:
+          $ref: '#/definitions/dto.TestCase'
+        type: array
+      title:
+        type: string
+    type: object
+  dto.CodingSubmissionResponse:
+    properties:
+      code:
+        type: string
+      coding_assignment_id:
+        type: string
+      feedback:
+        type: string
+      graded_at:
+        type: string
+      id:
+        type: string
+      passed:
+        type: boolean
+      score:
+        type: integer
+      submitted_at:
+        type: string
+      test_results:
+        items:
+          $ref: '#/definitions/dto.TestResult'
+        type: array
+      user_id:
+        type: string
+      user_name:
+        type: string
+    type: object
+  dto.ConversationResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      type:
+        type: string
+    type: object
+  dto.CourseResponse:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      duration:
+        type: string
+      format:
+        type: string
+      id:
+        type: string
+      is_certificate_available:
+        type: boolean
+      is_liked:
+        type: boolean
+      likes_count:
+        type: integer
+      modules:
+        items:
+          $ref: '#/definitions/dto.ModuleResponse'
+        type: array
+      price:
+        type: number
+      progress:
+        type: number
+      start_date:
+        type: string
+      status:
+        type: string
+      student_count:
+        type: integer
+      teacher_avatar_url:
+        type: string
+      teacher_bio:
+        type: string
+      teacher_id:
+        type: string
+      teacher_name:
+        type: string
+      thumbnail_url:
+        type: string
+      title:
+        type: string
+      type:
+        type: string
+    type: object
+  dto.CourseReviewResponse:
+    properties:
+      avatar_url:
+        type: string
+      comment:
+        type: string
+      course_id:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      rating:
+        type: integer
+      user_id:
+        type: string
+      user_name:
+        type: string
+    type: object
+  dto.CourseSearchResponse:
+    properties:
+      id:
+        type: string
+      thumbnail_url:
+        type: string
+      title:
+        type: string
+    type: object
+  dto.CreateAssignmentRequest:
+    properties:
+      description:
+        type: string
+      due_date:
+        description: Optional ISO8601 string
+        type: string
+      max_score:
+        type: integer
+      title:
+        type: string
+    required:
+    - max_score
+    - title
+    type: object
+  dto.CreateCodingAssignmentRequest:
+    properties:
+      description:
+        type: string
+      due_date:
+        description: ISO 8601 optional
+        type: string
+      language:
+        enum:
+        - python
+        - javascript
+        type: string
+      max_score:
+        type: integer
+      starter_code:
+        type: string
+      test_cases:
+        items:
+          $ref: '#/definitions/dto.TestCase'
+        type: array
+      title:
+        type: string
+    required:
+    - language
+    - max_score
+    - test_cases
+    - title
+    type: object
+  dto.CreateConversationRequest:
+    properties:
+      participant_ids:
+        items:
+          type: string
+        minItems: 1
+        type: array
+      type:
+        enum:
+        - direct
+        - group
+        type: string
+    required:
+    - participant_ids
+    - type
+    type: object
+  dto.CreateCourseRequest:
+    properties:
+      description:
+        type: string
+      duration:
+        type: string
+      format:
+        enum:
+        - course
+        - project
+        type: string
+      is_certificate_available:
+        type: boolean
+      price:
+        minimum: 0
+        type: number
+      start_date:
+        type: string
+      status:
+        enum:
+        - coming soon
+        - active
+        - ended
+        type: string
+      thumbnail_url:
+        type: string
+      title:
+        type: string
+      type:
+        enum:
+        - free
+        - paid
+        type: string
+    required:
+    - title
+    type: object
+  dto.CreateCourseReviewRequest:
+    properties:
+      comment:
+        type: string
+      rating:
+        maximum: 5
+        minimum: 1
+        type: integer
+    required:
+    - comment
+    - rating
+    type: object
+  dto.CreateModuleRequest:
+    properties:
+      description:
+        type: string
+      is_free:
+        type: boolean
+      parent_id:
+        type: string
+      points:
+        type: integer
+      title:
+        type: string
+      type:
+        description: video or chapter
+        type: string
+      video_url:
+        type: string
+    required:
+    - title
+    - type
+    type: object
+  dto.EnrolmentResponse:
+    properties:
+      course_id:
+        type: string
+      course_thumbnail_url:
+        type: string
+      course_title:
+        type: string
+      enrolled_at:
+        type: string
+      progress_percentage:
+        type: number
+      status:
+        type: string
+    type: object
+  dto.GenerateCertificateRequest:
+    properties:
+      course_id:
+        type: string
+      user_id:
+        type: string
+    required:
+    - course_id
+    - user_id
+    type: object
+  dto.GradeCodingSubmissionRequest:
+    properties:
+      feedback:
+        type: string
+      score:
+        type: integer
+    required:
+    - score
+    type: object
+  dto.GradeSubmissionRequest:
+    properties:
+      feedback:
+        type: string
+      score:
+        type: integer
+    required:
+    - score
+    type: object
+  dto.LeaderboardUserResponse:
+    properties:
+      avatar_url:
+        type: string
+      enrolled_courses:
+        type: integer
+      first_name:
+        type: string
+      last_name:
+        type: string
+      points:
+        type: integer
+      user_id:
+        type: string
+    type: object
+  dto.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  dto.MessageResponse:
+    properties:
+      attachment_url:
+        type: string
+      content:
+        type: string
+      conversation_id:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      sender_id:
+        type: string
+    type: object
+  dto.ModuleResponse:
+    properties:
+      course_id:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      is_completed:
+        type: boolean
+      is_free:
+        type: boolean
+      order_index:
+        type: integer
+      parent_id:
+        type: string
+      points:
+        type: integer
+      title:
+        type: string
+      type:
+        type: string
+      video_url:
+        type: string
+    type: object
+  dto.NotificationResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      is_read:
+        type: boolean
+      message:
+        type: string
+      title:
+        type: string
+      type:
+        type: string
+    type: object
+  dto.RegisterRequest:
+    properties:
+      email:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+      password:
+        minLength: 6
+        type: string
+      role:
+        enum:
+        - student
+        - teacher
+        - admin
+        type: string
+    required:
+    - email
+    - first_name
+    - last_name
+    - password
+    - role
+    type: object
+  dto.ReorderModulesRequest:
+    properties:
+      module_ids:
+        items:
+          type: string
+        type: array
+    required:
+    - module_ids
+    type: object
+  dto.RunCodeRequest:
+    properties:
+      code:
+        type: string
+      input:
+        description: arbitrary stdin for quick testing
+        type: string
+      language:
+        enum:
+        - python
+        - javascript
+        type: string
+    required:
+    - code
+    - language
+    type: object
+  dto.RunCodeResponse:
+    properties:
+      error:
+        type: string
+      execution_time_ms:
+        type: integer
+      output:
+        type: string
+      stderr:
+        type: string
+    type: object
+  dto.SubmitAssignmentRequest:
+    properties:
+      file_url:
+        type: string
+    required:
+    - file_url
+    type: object
+  dto.SubmitCodingRequest:
+    properties:
+      code:
+        type: string
+    required:
+    - code
+    type: object
+  dto.TestCase:
+    properties:
+      description:
+        type: string
+      expected_output:
+        type: string
+      id:
+        type: string
+      input:
+        type: string
+      is_hidden:
+        type: boolean
+    type: object
+  dto.TestResult:
+    properties:
+      actual:
+        type: string
+      description:
+        type: string
+      error:
+        type: string
+      execution_time_ms:
+        type: integer
+      expected:
+        description: omitted for hidden cases
+        type: string
+      input:
+        description: omitted for hidden cases
+        type: string
+      passed:
+        type: boolean
+      test_case_id:
+        type: string
+    type: object
+  dto.UpdateAssignmentRequest:
+    properties:
+      description:
+        type: string
+      due_date:
+        type: string
+      max_score:
+        type: integer
+      title:
+        type: string
+    type: object
+  dto.UpdateCodingAssignmentRequest:
+    properties:
+      description:
+        type: string
+      due_date:
+        type: string
+      language:
+        type: string
+      max_score:
+        type: integer
+      starter_code:
+        type: string
+      test_cases:
+        items:
+          $ref: '#/definitions/dto.TestCase'
+        type: array
+      title:
+        type: string
+    type: object
+  dto.UpdateCourseRequest:
+    properties:
+      description:
+        type: string
+      duration:
+        type: string
+      format:
+        enum:
+        - course
+        - project
+        type: string
+      is_certificate_available:
+        type: boolean
+      price:
+        minimum: 0
+        type: number
+      start_date:
+        type: string
+      status:
+        enum:
+        - coming soon
+        - active
+        - ended
+        type: string
+      thumbnail_url:
+        type: string
+      title:
+        type: string
+      type:
+        enum:
+        - free
+        - paid
+        type: string
+    type: object
+  dto.UpdateModuleRequest:
+    properties:
+      description:
+        type: string
+      is_free:
+        type: boolean
+      parent_id:
+        type: string
+      points:
+        type: integer
+      title:
+        type: string
+      video_url:
+        type: string
+    type: object
+  dto.UpdateProfileRequest:
+    properties:
+      avatar_url:
+        type: string
+      bio:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+    type: object
+  dto.UploadResponse:
+    properties:
+      file_url:
+        type: string
+    type: object
+  dto.UserProfileEnrolmentsResponse:
+    properties:
+      achievements:
+        items:
+          $ref: '#/definitions/dto.AchievementResponse'
+        type: array
+      enrolments:
+        items:
+          $ref: '#/definitions/dto.EnrolmentResponse'
+        type: array
+      points:
+        type: integer
+      total_enrolments:
+        description: if supporting pagination on enrolments
+        type: integer
+      user:
+        $ref: '#/definitions/dto.UserResponse'
+    type: object
+  dto.UserResponse:
+    properties:
+      avatar_url:
+        type: string
+      bio:
+        type: string
+      email:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: string
+      last_name:
+        type: string
+      role:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@gceklms.example.com
+    name: GCEK LMS Support
+  description: Learning Management System backend API for GCEK.
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: http://swagger.io/terms/
+  title: GCEK LMS API
+  version: "1.0"
+paths:
+  /api/certificates/download:
+    get:
+      description: Downloads a certificate PDF file by filename.
+      parameters:
+      - description: Certificate filename (e.g. cert-uuid.pdf)
+        in: query
+        name: file
+        required: true
+        type: string
+      - description: Course name used in the download filename
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/pdf
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Download a certificate
+      tags:
+      - certificates
+  /api/certificates/generate:
+    post:
+      consumes:
+      - application/json
+      description: Generates a PDF certificate for a user who completed a course.
+      parameters:
+      - description: Certificate generation payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.GenerateCertificateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.CertificateResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Generate a certificate
+      tags:
+      - certificates
+  /api/chat/conversations:
+    get:
+      description: Returns all conversations for the authenticated user.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.ConversationResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get conversations
+      tags:
+      - chat
+    post:
+      consumes:
+      - application/json
+      description: Creates a new direct or group conversation.
+      parameters:
+      - description: Conversation creation payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateConversationRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.ConversationResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create a conversation
+      tags:
+      - chat
+  /api/chat/conversations/{id}/messages:
+    get:
+      description: Returns all messages in a specific conversation.
+      parameters:
+      - description: Conversation ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.MessageResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get conversation messages
+      tags:
+      - chat
+  /api/code/run:
+    post:
+      consumes:
+      - application/json
+      description: Executes code in a sandboxed environment without submitting it
+        as an assignment.
+      parameters:
+      - description: Code execution payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RunCodeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.RunCodeResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Run code in sandbox
+      tags:
+      - coding-assignments
+  /api/courses:
+    get:
+      description: Returns a list of courses with optional filters.
+      parameters:
+      - description: Search query
+        in: query
+        name: query
+        type: string
+      - description: Course type (free, paid)
+        in: query
+        name: type
+        type: string
+      - description: Course format (course, project)
+        in: query
+        name: format
+        type: string
+      - description: Course status (coming soon, active, ended)
+        in: query
+        name: status
+        type: string
+      - description: Filter by teacher ID (UUID)
+        in: query
+        name: teacher_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.CourseResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: List all courses
+      tags:
+      - courses
+    post:
+      consumes:
+      - application/json
+      description: Creates a new course. Requires Teacher or Admin role.
+      parameters:
+      - description: Course creation payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateCourseRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.CourseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create a course
+      tags:
+      - courses
+  /api/courses/{id}:
+    delete:
+      description: Deletes a course. Requires Teacher or Admin role.
+      parameters:
+      - description: Course ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete a course
+      tags:
+      - courses
+    get:
+      description: Returns detailed information about a specific course, including
+        modules.
+      parameters:
+      - description: Course ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.CourseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get course by ID
+      tags:
+      - courses
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing course. Requires Teacher or Admin role.
+      parameters:
+      - description: Course ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Course update payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateCourseRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.CourseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update a course
+      tags:
+      - courses
+  /api/courses/{id}/assignments:
+    get:
+      description: Returns all assignments for a course.
+      parameters:
+      - description: Course ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.AssignmentResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List assignments
+      tags:
+      - assignments
+    post:
+      consumes:
+      - application/json
+      description: Creates a new assignment for a course. Requires Teacher or Admin
+        role.
+      parameters:
+      - description: Course ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Assignment creation payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateAssignmentRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.AssignmentResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create an assignment
+      tags:
+      - assignments
+  /api/courses/{id}/assignments/{assignmentId}:
+    delete:
+      description: Deletes an assignment from a course. Requires Teacher or Admin
+        role.
+      parameters:
+      - description: Course ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Assignment ID (UUID)
+        in: path
+        name: assignmentId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete an assignment
+      tags:
+      - assignments
+    get:
+      description: Returns details of a specific assignment.
+      parameters:
+      - description: Course ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Assignment ID (UUID)
+        in: path
+        name: assignmentId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.AssignmentResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get assignment by ID
+      tags:
+      - assignments
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing assignment. Requires Teacher or Admin role.
+      parameters:
+      - description: Course ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Assignment ID (UUID)
+        in: path
+        name: assignmentId
+        required: true
+        type: string
+      - description: Assignment update payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateAssignmentRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.AssignmentResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update an assignment
+      tags:
+      - assignments
+  /api/courses/{id}/assignments/{assignmentId}/submissions:
+    get:
+      description: Returns all student submissions for an assignment. Requires Teacher
+        or Admin role.
+      parameters:
+      - description: Course ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Assignment ID (UUID)
+        in: path
+        name: assignmentId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.AssignmentSubmissionResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get all submissions
+      tags:
+      - assignments
+  /api/courses/{id}/assignments/{assignmentId}/submissions/{submissionId}/grade:
+    put:
+      consumes:
+      - application/json
+      description: Assigns a score and feedback to a student's submission. Requires
+        Teacher or Admin role.
+      parameters:
+      - description: Course ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Assignment ID (UUID)
+        in: path
+        name: assignmentId
+        required: true
+        type: string
+      - description: Submission ID (UUID)
+        in: path
+        name: submissionId
+        required: true
+        type: string
+      - description: Grading payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.GradeSubmissionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.AssignmentSubmissionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Grade a submission
+      tags:
+      - assignments
+  /api/courses/{id}/assignments/{assignmentId}/submissions/me:
+    get:
+      description: Returns the authenticated student's submission for a specific assignment.
+      parameters:
+      - description: Course ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Assignment ID (UUID)
+        in: path
+        name: assignmentId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.AssignmentSubmissionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get own submission
+      tags:
+      - assignments
+  /api/courses/{id}/assignments/{assignmentId}/submit:
+    post:
+      consumes:
+      - application/json
+      description: Submits a file URL as the student's assignment submission.
+      parameters:
+      - description: Course ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Assignment ID (UUID)
+        in: path
+        name: assignmentId
+        required: true
+        type: string
+      - description: Submission payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SubmitAssignmentRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.AssignmentSubmissionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Submit an assignment
+      tags:
+      - assignments
+  /api/courses/{id}/coding-assignments:
+    get:
+      description: Returns all coding assignments for a course.
+      parameters:
+      - description: Course ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.CodingAssignmentResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List coding assignments
+      tags:
+      - coding-assignments
+    post:
+      consumes:
+      - application/json
+      description: Creates a new coding assignment with test cases for a course. Requires
+        Teacher or Admin role.
+      parameters:
+      - description: Course ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Coding assignment creation payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateCodingAssignmentRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.CodingAssignmentResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create a coding assignment
+      tags:
+      - coding-assignments
+  /api/courses/{id}/coding-assignments/{codingAssignmentId}:
+    delete:
+      description: Deletes a coding assignment. Requires Teacher or Admin role.
+      parameters:
+      - description: Course ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Coding Assignment ID (UUID)
+        in: path
+        name: codingAssignmentId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete a coding assignment
+      tags:
+      - coding-assignments
+    get:
+      description: Returns details of a specific coding assignment including test
+        cases.
+      parameters:
+      - description: Course ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Coding Assignment ID (UUID)
+        in: path
+        name: codingAssignmentId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.CodingAssignmentResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get coding assignment by ID
+      tags:
+      - coding-assignments
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing coding assignment. Requires Teacher or Admin
+        role.
+      parameters:
+      - description: Course ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Coding Assignment ID (UUID)
+        in: path
+        name: codingAssignmentId
+        required: true
+        type: string
+      - description: Update payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateCodingAssignmentRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.CodingAssignmentResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update a coding assignment
+      tags:
+      - coding-assignments
+  /api/courses/{id}/coding-assignments/{codingAssignmentId}/submissions:
+    get:
+      description: Returns all student submissions for a coding assignment. Requires
+        Teacher or Admin role.
+      parameters:
+      - description: Course ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Coding Assignment ID (UUID)
+        in: path
+        name: codingAssignmentId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.CodingSubmissionResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get all coding submissions
+      tags:
+      - coding-assignments
+  /api/courses/{id}/coding-assignments/{codingAssignmentId}/submissions/{submissionId}/grade:
+    put:
+      consumes:
+      - application/json
+      description: Assigns a score and feedback to a student's coding submission.
+        Requires Teacher or Admin role.
+      parameters:
+      - description: Course ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Coding Assignment ID (UUID)
+        in: path
+        name: codingAssignmentId
+        required: true
+        type: string
+      - description: Submission ID (UUID)
+        in: path
+        name: submissionId
+        required: true
+        type: string
+      - description: Grading payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.GradeCodingSubmissionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.CodingSubmissionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Grade a coding submission
+      tags:
+      - coding-assignments
+  /api/courses/{id}/coding-assignments/{codingAssignmentId}/submissions/me:
+    get:
+      description: Returns the authenticated student's submission for a specific coding
+        assignment.
+      parameters:
+      - description: Course ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Coding Assignment ID (UUID)
+        in: path
+        name: codingAssignmentId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.CodingSubmissionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get own coding submission
+      tags:
+      - coding-assignments
+  /api/courses/{id}/coding-assignments/{codingAssignmentId}/submit:
+    post:
+      consumes:
+      - application/json
+      description: Submits code for evaluation against the test cases of a coding
+        assignment.
+      parameters:
+      - description: Course ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Coding Assignment ID (UUID)
+        in: path
+        name: codingAssignmentId
+        required: true
+        type: string
+      - description: Code submission payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SubmitCodingRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.CodingSubmissionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Submit code for a coding assignment
+      tags:
+      - coding-assignments
+  /api/courses/{id}/enroll:
+    post:
+      description: Enrolls the authenticated user in the specified course.
+      parameters:
+      - description: Course ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Enroll in a course
+      tags:
+      - courses
+  /api/courses/{id}/enrollment:
+    get:
+      description: Returns the authenticated user's enrollment status for a course.
+      parameters:
+      - description: Course ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get enrollment status
+      tags:
+      - courses
+  /api/courses/{id}/like:
+    delete:
+      description: Removes a like from a course for the authenticated user.
+      parameters:
+      - description: Course ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Unlike a course
+      tags:
+      - courses
+    post:
+      description: Adds a like to a course for the authenticated user.
+      parameters:
+      - description: Course ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Like a course
+      tags:
+      - courses
+  /api/courses/{id}/modules:
+    post:
+      consumes:
+      - application/json
+      description: Adds a new module to a course. Requires Teacher or Admin role.
+      parameters:
+      - description: Course ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Module creation payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateModuleRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.ModuleResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create a module
+      tags:
+      - courses
+  /api/courses/{id}/modules/{moduleId}:
+    delete:
+      description: Removes a module from a course. Requires Teacher or Admin role.
+      parameters:
+      - description: Course ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Module ID (UUID)
+        in: path
+        name: moduleId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete a module
+      tags:
+      - courses
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing module. Requires Teacher or Admin role.
+      parameters:
+      - description: Course ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Module ID (UUID)
+        in: path
+        name: moduleId
+        required: true
+        type: string
+      - description: Module update payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateModuleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ModuleResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update a module
+      tags:
+      - courses
+  /api/courses/{id}/modules/{moduleId}/complete:
+    post:
+      description: Marks a specific module as completed for the authenticated user.
+      parameters:
+      - description: Course ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Module ID (UUID)
+        in: path
+        name: moduleId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Mark module as complete
+      tags:
+      - courses
+  /api/courses/{id}/modules/reorder:
+    put:
+      consumes:
+      - application/json
+      description: Sets the display order of modules within a course. Requires Teacher
+        or Admin role.
+      parameters:
+      - description: Course ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Ordered list of module IDs
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ReorderModulesRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Reorder modules
+      tags:
+      - courses
+  /api/courses/{id}/reviews:
+    get:
+      description: Returns all reviews for a specific course.
+      parameters:
+      - description: Course ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.CourseReviewResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get course reviews
+      tags:
+      - courses
+    post:
+      consumes:
+      - application/json
+      description: Submits a rating and comment review for a course.
+      parameters:
+      - description: Course ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Review payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateCourseReviewRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.CourseReviewResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Add a course review
+      tags:
+      - courses
+  /api/courses/search:
+    get:
+      description: Searches courses by query text with optional filters and pagination.
+      parameters:
+      - description: Search query text
+        in: query
+        name: query
+        type: string
+      - description: Course type (free, paid)
+        in: query
+        name: type
+        type: string
+      - description: Course format (course, project)
+        in: query
+        name: format
+        type: string
+      - description: Course status (coming soon, active, ended)
+        in: query
+        name: status
+        type: string
+      - description: Maximum number of results
+        in: query
+        name: limit
+        required: true
+        type: integer
+      - description: Offset for pagination
+        in: query
+        name: offset
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.CourseSearchResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Search courses
+      tags:
+      - courses
+  /api/courses/trending:
+    get:
+      description: Returns the top trending courses based on enrollment and likes.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.CourseResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get trending courses
+      tags:
+      - courses
+  /api/leaderboard:
+    get:
+      description: Returns the top 50 users sorted by points.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.LeaderboardUserResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get leaderboard
+      tags:
+      - leaderboard
+  /api/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticates a user and returns a JWT token.
+      parameters:
+      - description: Login credentials
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: User login
+      tags:
+      - auth
+  /api/notifications:
+    get:
+      description: Returns all notifications for the authenticated user.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.NotificationResponse'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get notifications
+      tags:
+      - notifications
+  /api/notifications/{id}/read:
+    put:
+      description: Marks a specific notification as read for the authenticated user.
+      parameters:
+      - description: Notification ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Mark notification as read
+      tags:
+      - notifications
+  /api/notifications/unread-count:
+    get:
+      description: Returns the count of unread notifications for the authenticated
+        user.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              format: int64
+              type: integer
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get unread notification count
+      tags:
+      - notifications
+  /api/register:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new user account with the given credentials and role.
+      parameters:
+      - description: Registration payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Register a new user
+      tags:
+      - auth
+  /api/upload/attachment:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Uploads an attachment file (pdf, doc, docx, txt).
+      parameters:
+      - description: Attachment file
+        in: formData
+        name: attachment
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.UploadResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Upload an attachment
+      tags:
+      - uploads
+  /api/upload/image:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Uploads an image file (jpg, jpeg, png, gif, webp).
+      parameters:
+      - description: Image file
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.UploadResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Upload an image
+      tags:
+      - uploads
+  /api/upload/video:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Uploads a video file (mp4 or webm). Requires Teacher or Admin role.
+      parameters:
+      - description: Video file (mp4 or webm)
+        in: formData
+        name: video
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.UploadResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Upload a video
+      tags:
+      - uploads
+  /api/users:
+    get:
+      description: Returns a paginated list of users. Optionally filtered by user
+        type.
+      parameters:
+      - default: 50
+        description: Maximum number of results
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset for pagination
+        in: query
+        name: offset
+        type: integer
+      - description: Filter by user type (student, teacher, admin)
+        in: query
+        name: user_type
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List users
+      tags:
+      - users
+  /api/users/{id}/enrolments:
+    get:
+      description: Returns a user's profile, achievements, and enrolled courses.
+      parameters:
+      - description: User ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - default: 50
+        description: Maximum number of enrolment results
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset for pagination
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.UserProfileEnrolmentsResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get user enrolments
+      tags:
+      - users
+  /api/users/profile:
+    put:
+      consumes:
+      - application/json
+      description: Updates the authenticated user's profile information.
+      parameters:
+      - description: Profile update payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateProfileRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.UserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update own profile
+      tags:
+      - users
+  /ws/chat:
+    get:
+      description: Establishes a WebSocket connection for real-time chat. Pass token
+        and user_id as query parameters.
+      parameters:
+      - description: JWT token
+        in: query
+        name: token
+        required: true
+        type: string
+      - description: User ID (UUID)
+        in: query
+        name: user_id
+        required: true
+        type: string
+      responses:
+        "101":
+          description: Switching Protocols
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: WebSocket chat connection
+      tags:
+      - chat
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and the JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

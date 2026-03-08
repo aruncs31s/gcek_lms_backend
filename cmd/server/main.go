@@ -1,9 +1,29 @@
+// @title           GCEK LMS API
+// @version         1.0
+// @description     Learning Management System backend API for GCEK.
+// @termsOfService  http://swagger.io/terms/
+
+// @contact.name   GCEK LMS Support
+// @contact.email  support@gceklms.example.com
+
+// @license.name  MIT
+// @license.url   https://opensource.org/licenses/MIT
+
+// @host      localhost:8080
+// @BasePath  /
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and the JWT token.
+
 package main
 
 import (
 	"fmt"
 	"log"
 
+	_ "github.com/aruncs/esdc-lms/docs"
 	"github.com/aruncs/esdc-lms/internal/handler"
 	"github.com/aruncs/esdc-lms/internal/logger"
 	"github.com/aruncs/esdc-lms/internal/repository"

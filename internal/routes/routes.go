@@ -5,6 +5,8 @@ import (
 	"github.com/aruncs/esdc-lms/internal/middleware"
 	"github.com/aruncs/esdc-lms/internal/model"
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func SetupRoutes(
@@ -28,6 +30,9 @@ func SetupRoutes(
 
 	// Static Files
 	r.Static("/uploads", "./uploads")
+
+	// Swagger UI
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// Health Check
 	r.GET("/api/health", func(c *gin.Context) {
