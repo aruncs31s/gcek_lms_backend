@@ -74,6 +74,8 @@ func SetupRoutes(
 			protectedCourses.DELETE("/:id/like", courseHandler.UnlikeCourse)
 			protectedCourses.POST("/:id/enroll", courseHandler.EnrollCourse)
 			protectedCourses.GET("/:id/enrollment", courseHandler.GetEnrollmentStatus)
+			protectedCourses.GET("/:id/enrollments/users", courseHandler.GetEntrolledUsers)
+			protectedCourses.GET("/:id/enrollments/users/count", courseHandler.GetEntrolledUsersCount)
 			protectedCourses.POST("/:id/modules/:moduleId/complete", courseHandler.CompleteModule)
 			protectedCourses.POST("/:id/reviews", courseHandler.AddReview)
 

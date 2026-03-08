@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"errors"
 
 	"github.com/aruncs/esdc-lms/internal/dto"
@@ -65,6 +66,7 @@ type CourseService interface {
 		courseID uuid.UUID,
 		userID uuid.UUID,
 	) (*model.Enrollment, error)
+
 	CompleteModule(
 		courseID uuid.UUID,
 		moduleID uuid.UUID,
@@ -101,14 +103,29 @@ type CourseService interface {
 		limit int,
 		offset int,
 	) ([]dto.CourseSearchResponse, error)
+	GetEnrolledUsers(
+		ctx context.Context,
+		courseID uuid.UUID,
+	) ([]dto.UserResponse, error)
+	GetEnrolledUsersCount(
+		ctx context.Context,
+		courseID uuid.UUID,
+	) (int64, error)
 }
 
 type courseService struct {
 	courseRepo repository.CourseRepository
+	ur         repository.UserRepository
 }
 
-func NewCourseService(repo repository.CourseRepository) CourseService {
-	return &courseService{courseRepo: repo}
+func NewCourseService(
+	repo repository.CourseRepository,
+	ur repository.UserRepository,
+) CourseService {
+	return &courseService{
+		courseRepo: repo,
+		ur:         ur,
+	}
 }
 
 func (s *courseService) CreateCourse(teacherID uuid.UUID, req *dto.CreateCourseRequest) (*dto.CourseResponse, error) {
@@ -643,6 +660,7 @@ func (s *courseService) GetReviews(courseID uuid.UUID) ([]dto.CourseReviewRespon
 
 	return res, nil
 }
+
 func (s *courseService) SearchCourses(query string, courseType string, format string, status string, limit int, offset int) ([]dto.CourseSearchResponse, error) {
 	courses, err := s.courseRepo.SearchCourses(query, courseType, format, status, limit, offset)
 	if err != nil {
@@ -661,4 +679,24 @@ func (s *courseService) SearchCourses(query string, courseType string, format st
 		responses = []dto.CourseSearchResponse{}
 	}
 	return responses, nil
+}
+
+func (s *courseService) GetEnrolledUsers(ctx context.Context, courseID uuid.UUID) ([]dto.UserResponse, error) {
+	users, err := s.ur.GetUsersByCourse(ctx, courseID)
+	if err != nil {
+		return []dto.UserResponse{}, err
+	}
+	m := NewUserMapper()
+	var res []dto.UserResponse
+	for _, u := range users {
+		res = append(res, *m.MapToDTO(&u))
+	}
+	if res == nil {
+		res = []dto.UserResponse{}
+	}
+	return res, nil
+}
+
+func (s *courseService) GetEnrolledUsersCount(ctx context.Context, courseID uuid.UUID) (int64, error) {
+	return s.ur.GetUserCountByCourse(ctx, courseID)
 }

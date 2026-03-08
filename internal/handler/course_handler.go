@@ -563,6 +563,62 @@ func (h *CourseHandler) GetEnrollmentStatus(c *gin.Context) {
 	})
 }
 
+func (h *CourseHandler) GetEntrolledUsers(
+	c *gin.Context,
+) {
+	userID, courseID := h.getEssentials(c)
+	if userID == uuid.Nil || courseID == uuid.Nil {
+		return
+	}
+
+	enrollments, err := h.courseService.GetEnrolledUsers(c.Request.Context(), courseID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, map[string]any{"enrollments": enrollments})
+}
+
+func (*CourseHandler) getEssentials(c *gin.Context) (uuid.UUID, uuid.UUID) {
+	userClaimsRaw, exists := c.Get(middleware.UserContextKey)
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return uuid.UUID{}, uuid.UUID{}
+	}
+	userClaims := userClaimsRaw.(middleware.UserClaims)
+
+	userID, err := uuid.Parse(userClaims.UserID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return uuid.UUID{}, uuid.UUID{}
+	}
+
+	courseIDStr := c.Param("id")
+	courseID, err := uuid.Parse(courseIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid course ID"})
+		return uuid.UUID{}, uuid.UUID{}
+	}
+	return userID, courseID
+}
+
+func (h *CourseHandler) GetEntrolledUsersCount(
+	c *gin.Context,
+) {
+	courseId, userId := h.getEssentials(c)
+	if courseId == uuid.Nil || userId == uuid.Nil {
+		return
+	}
+
+	count, err := h.courseService.GetEnrolledUsersCount(c.Request.Context(), courseId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"count": count})
+}
+
 // CompleteModule godoc
 // @Summary      Mark module as complete
 // @Description  Marks a specific module as completed for the authenticated user.
@@ -802,6 +858,7 @@ func (h *CourseHandler) GetReviews(c *gin.Context) {
 
 	c.JSON(http.StatusOK, reviews)
 }
+
 // SearchCourses godoc
 // @Summary      Search courses
 // @Description  Searches courses by query text with optional filters and pagination.

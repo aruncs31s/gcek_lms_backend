@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"errors"
 	"strings"
 
@@ -18,6 +19,11 @@ type UserRepository interface {
 	GetProfileWithEnrolments(userID string, limit, offset int) (*model.User, []model.Enrollment, int64, error)
 	UpdateProfile(profile *model.Profile) error
 	Search(query string, role string, limit, offset int) ([]model.User, int64, error)
+	GetUsersByCourse(
+		ctx context.Context,
+		courseID uuid.UUID,
+	) ([]model.User, error)
+	GetUserCountByCourse(ctx context.Context, courseID uuid.UUID) (int64, error)
 }
 
 type userRepository struct {
@@ -101,7 +107,8 @@ func (r *userRepository) Search(
 	var users []model.User
 	var count int64
 
-	db := r.db.Model(&model.User{}).
+	db := r.db.
+		Model(&model.User{}).
 		Joins("LEFT JOIN profiles ON profiles.user_id = users.id")
 
 	// Search by email, first name, or last name
@@ -131,4 +138,33 @@ func (r *userRepository) Search(
 		Find(&users).Error
 
 	return users, count, err
+}
+
+func (r *userRepository) GetUsersByCourse(
+	ctx context.Context,
+	courseID uuid.UUID,
+) ([]model.User, error) {
+	var out []model.User
+	err := r.db.
+		WithContext(ctx).
+		Joins("JOIN enrollments ON enrollments.user_id = users.id").
+		Where("enrollments.course_id = ?", courseID).
+		Find(&out).Error
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+func (r *userRepository) GetUserCountByCourse(ctx context.Context, courseID uuid.UUID) (int64, error) {
+	var count int64
+	err := r.db.
+		WithContext(ctx).
+		Model(&model.User{}).
+		Joins("JOIN enrollments ON enrollments.user_id = users.id").
+		Where("enrollments.course_id = ?", courseID).
+		Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
 }
