@@ -359,6 +359,9 @@ func (s *courseService) UpdateModule(courseID uuid.UUID, moduleID uuid.UUID, tea
 	if req.Description != nil {
 		module.Description = *req.Description
 	}
+	if req.Type != nil && *req.Type != "" {
+		module.Type = *req.Type
+	}
 	if req.VideoURL != nil {
 		module.VideoURL = *req.VideoURL
 	}

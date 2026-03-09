@@ -73,6 +73,7 @@ type UpdateModuleRequest struct {
 	ParentID    *string `json:"parent_id"`
 	Title       *string `json:"title"`
 	Description *string `json:"description"`
+	Type        *string `json:"type"`
 	VideoURL    *string `json:"video_url"`
 	PDFURL      *string `json:"pdf_url"`
 	Points      *int    `json:"points"`
