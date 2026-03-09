@@ -42,11 +42,12 @@ type Module struct {
 	ParentID    *uuid.UUID `gorm:"type:uuid;index"` // Nullable for top-level modules
 	Title       string     `gorm:"size:255;not null"`
 	Description string     `gorm:"type:text"`
-	Type        string     `gorm:"size:50;not null;default:'video'"` // "video" or "chapter"
+	Type        string     `gorm:"size:50;not null;default:'video'"` // "video", "chapter", or "pdf"
 	VideoURL    string
-	Points      int  `gorm:"default:0"`
-	IsFree      bool `gorm:"default:false"`
-	OrderIndex  int  `gorm:"not null"`
+	PDFURL      string `gorm:"type:varchar(512)"`
+	Points      int    `gorm:"default:0"`
+	IsFree      bool   `gorm:"default:false"`
+	OrderIndex  int    `gorm:"not null"`
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }

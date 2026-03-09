@@ -135,6 +135,7 @@ func SetupRoutes(
 			upload.POST("/video", teacherAdminMw, uploadHandler.UploadVideo)
 			upload.POST("/image", uploadHandler.UploadImage)
 			upload.POST("/attachment", uploadHandler.UploadAttachment)
+			upload.POST("/pdf", teacherAdminMw, uploadHandler.UploadPDF)
 		}
 
 		// Certificate Routes

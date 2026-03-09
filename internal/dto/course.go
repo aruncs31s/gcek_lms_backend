@@ -62,8 +62,9 @@ type CreateModuleRequest struct {
 	ParentID    *string `json:"parent_id"`
 	Title       string  `json:"title" validate:"required"`
 	Description string  `json:"description"`
-	Type        string  `json:"type" validate:"required"` // video or chapter
+	Type        string  `json:"type" validate:"required"` // video, chapter, or pdf
 	VideoURL    string  `json:"video_url"`
+	PDFURL      string  `json:"pdf_url"`
 	Points      int     `json:"points"`
 	IsFree      bool    `json:"is_free"`
 }
@@ -73,6 +74,7 @@ type UpdateModuleRequest struct {
 	Title       *string `json:"title"`
 	Description *string `json:"description"`
 	VideoURL    *string `json:"video_url"`
+	PDFURL      *string `json:"pdf_url"`
 	Points      *int    `json:"points"`
 	IsFree      *bool   `json:"is_free"`
 }
@@ -89,6 +91,7 @@ type ModuleResponse struct {
 	Description string  `json:"description"`
 	Type        string  `json:"type"`
 	VideoURL    string  `json:"video_url"`
+	PDFURL      string  `json:"pdf_url"`
 	Points      int     `json:"points"`
 	IsFree      bool    `json:"is_free"`
 	OrderIndex  int     `json:"order_index"`

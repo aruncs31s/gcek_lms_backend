@@ -98,5 +98,7 @@ func (h *videoUploadHandler) Upload(c *gin.Context) {
 		VideoUploadType,
 		newFileName,
 	)
-	c.JSON(http.StatusOK, dto.UploadResponse{FileURL: fileURL})
+	c.JSON(http.StatusOK, dto.UploadResponse{
+		FileURL: fileURL,
+	})
 }
