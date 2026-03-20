@@ -1,6 +1,8 @@
 package service
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"errors"
 	"time"
 
@@ -15,9 +17,15 @@ import (
 )
 
 var (
-	ErrUserNotFound       = errors.New("user not found")
-	ErrInvalidCredentials = errors.New("invalid email or password")
-	ErrAlreadyExists      = errors.New("email already in use")
+	ErrUserNotFound          = errors.New("user not found")
+	ErrInvalidCredentials    = errors.New("invalid email or password")
+	ErrAlreadyExists         = errors.New("email already in use")
+	ErrInvalidRefreshToken   = errors.New("invalid or expired refresh token")
+)
+
+const (
+	accessTokenDuration  = 15 * time.Minute
+	refreshTokenDuration = 7 * 24 * time.Hour
 )
 
 type UserService interface {
@@ -27,6 +35,8 @@ type UserService interface {
 	LoginUser(
 		req *dto.LoginRequest,
 	) (*dto.AuthResponse, error)
+	RefreshToken(refreshToken string) (*dto.AuthResponse, error)
+	Logout(userID string, refreshToken string) error
 	List(
 		limit,
 		offset int,
@@ -49,16 +59,18 @@ type UserService interface {
 }
 
 type userService struct {
-	userRepo        repository.UserRepository
-	achievementRepo repository.AchievementRepository
-	jwtSecret       []byte
+	userRepo             repository.UserRepository
+	achievementRepo      repository.AchievementRepository
+	refreshTokenRepo     repository.RefreshTokenRepository
+	jwtSecret            []byte
 }
 
-func NewUserService(repo repository.UserRepository, achievementRepo repository.AchievementRepository, secret string) UserService {
+func NewUserService(repo repository.UserRepository, achievementRepo repository.AchievementRepository, refreshTokenRepo repository.RefreshTokenRepository, secret string) UserService {
 	return &userService{
-		userRepo:        repo,
-		achievementRepo: achievementRepo,
-		jwtSecret:       []byte(secret),
+		userRepo:         repo,
+		achievementRepo:  achievementRepo,
+		refreshTokenRepo: refreshTokenRepo,
+		jwtSecret:        []byte(secret),
 	}
 }
 
@@ -100,17 +112,27 @@ func (s *userService) RegisterUser(req *dto.RegisterRequest) (*dto.AuthResponse,
 		return nil, err
 	}
 
-	token, err := s.generateToken(user.ID, string(user.Role))
+	accessToken, err := s.generateAccessToken(user.ID, string(user.Role))
 	if err != nil {
 		logger.GetLogger().Error(
-			"Failed to generate token: ",
+			"Failed to generate access token: ",
+			zap.String("err", err.Error()),
+		)
+		return nil, err
+	}
+
+	refreshToken, err := s.createRefreshToken(user.ID)
+	if err != nil {
+		logger.GetLogger().Error(
+			"Failed to generate refresh token: ",
 			zap.String("err", err.Error()),
 		)
 		return nil, err
 	}
 
 	return &dto.AuthResponse{
-		Token: token,
+		Token:        accessToken,
+		RefreshToken: refreshToken,
 		User: dto.UserResponse{
 			ID:        user.ID.String(),
 			FirstName: user.Profile.FirstName,
@@ -133,13 +155,19 @@ func (s *userService) LoginUser(req *dto.LoginRequest) (*dto.AuthResponse, error
 		return nil, ErrInvalidCredentials
 	}
 
-	token, err := s.generateToken(user.ID, string(user.Role))
+	accessToken, err := s.generateAccessToken(user.ID, string(user.Role))
+	if err != nil {
+		return nil, err
+	}
+
+	refreshToken, err := s.createRefreshToken(user.ID)
 	if err != nil {
 		return nil, err
 	}
 
 	return &dto.AuthResponse{
-		Token: token,
+		Token:        accessToken,
+		RefreshToken: refreshToken,
 		User: dto.UserResponse{
 			ID:        user.ID.String(),
 			FirstName: user.Profile.FirstName,
@@ -152,15 +180,96 @@ func (s *userService) LoginUser(req *dto.LoginRequest) (*dto.AuthResponse, error
 	}, nil
 }
 
-func (s *userService) generateToken(userID uuid.UUID, role string) (string, error) {
+func (s *userService) RefreshToken(refreshToken string) (*dto.AuthResponse, error) {
+	rt, err := s.refreshTokenRepo.FindByToken(refreshToken)
+	if err != nil {
+		return nil, ErrInvalidRefreshToken
+	}
+	if rt == nil || rt.IsExpired() {
+		return nil, ErrInvalidRefreshToken
+	}
+
+	// Fetch the user associated with the refresh token
+	user, err := s.userRepo.GetUserByID(rt.UserID)
+	if err != nil || user == nil {
+		return nil, ErrInvalidRefreshToken
+	}
+
+	// Generate new tokens first so that a generation failure doesn't
+	// invalidate the session by prematurely deleting the old token.
+	accessToken, err := s.generateAccessToken(user.ID, string(user.Role))
+	if err != nil {
+		return nil, err
+	}
+
+	newRefreshToken, err := s.createRefreshToken(user.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Rotate: delete the old refresh token only after new ones are issued.
+	if err := s.refreshTokenRepo.DeleteByToken(refreshToken); err != nil {
+		return nil, err
+	}
+
+	return &dto.AuthResponse{
+		Token:        accessToken,
+		RefreshToken: newRefreshToken,
+		User: dto.UserResponse{
+			ID:        user.ID.String(),
+			FirstName: user.Profile.FirstName,
+			LastName:  user.Profile.LastName,
+			Email:     user.Email,
+			Role:      string(user.Role),
+			AvatarURL: user.Profile.AvatarURL,
+			Bio:       user.Profile.Bio,
+		},
+	}, nil
+}
+
+func (s *userService) Logout(userID string, refreshToken string) error {
+	rt, err := s.refreshTokenRepo.FindByToken(refreshToken)
+	if err != nil {
+		return ErrInvalidRefreshToken
+	}
+	if rt == nil {
+		return ErrInvalidRefreshToken
+	}
+	// Ensure the token belongs to the authenticated user.
+	if rt.UserID.String() != userID {
+		return ErrInvalidRefreshToken
+	}
+	return s.refreshTokenRepo.DeleteByToken(refreshToken)
+}
+
+func (s *userService) generateAccessToken(userID uuid.UUID, role string) (string, error) {
 	claims := jwt.MapClaims{
 		"user_id": userID.String(),
 		"role":    role,
-		"exp":     time.Now().Add(time.Hour * 72).Unix(),
+		"exp":     time.Now().Add(accessTokenDuration).Unix(),
 	}
-
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString(s.jwtSecret)
+}
+
+func (s *userService) createRefreshToken(userID uuid.UUID) (string, error) {
+	// 32 random bytes produce a 64-character hex string which gives
+	// 256 bits of entropy – well above the minimum recommended for refresh tokens.
+	tokenBytes := make([]byte, 32)
+	if _, err := rand.Read(tokenBytes); err != nil {
+		return "", err
+	}
+	tokenStr := hex.EncodeToString(tokenBytes)
+
+	rt := &model.RefreshToken{
+		UserID:    userID,
+		Token:     tokenStr,
+		ExpiresAt: time.Now().Add(refreshTokenDuration),
+	}
+	if err := s.refreshTokenRepo.Create(rt); err != nil {
+		return "", err
+	}
+	return tokenStr, nil
 }
 
 func (s *userService) List(limit, offset int, userType string) ([]dto.UserResponseWithType, int64, error) {

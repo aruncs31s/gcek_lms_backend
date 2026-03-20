@@ -51,6 +51,8 @@ func SetupRoutes(
 		// Auth Routes
 		api.POST("/register", authHandler.Register)
 		api.POST("/login", authHandler.Login)
+		api.POST("/refresh", authHandler.RefreshToken)
+		api.POST("/logout", authMw, authHandler.Logout)
 
 		// Leaderboard Routes
 		api.GET("/leaderboard", leaderboardHandler.GetLeaderboard)
