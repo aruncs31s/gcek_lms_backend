@@ -20,13 +20,13 @@ type TestCase struct {
 
 // TestResult is the outcome of running one test case against submitted code.
 type TestResult struct {
-	TestCaseID     string `json:"test_case_id"`
-	Description    string `json:"description"`
-	Input          string `json:"input,omitempty"`   // omitted for hidden cases
-	Expected       string `json:"expected,omitempty"` // omitted for hidden cases
-	Actual         string `json:"actual"`
-	Passed         bool   `json:"passed"`
-	Error          string `json:"error,omitempty"`
+	TestCaseID      string `json:"test_case_id"`
+	Description     string `json:"description"`
+	Input           string `json:"input,omitempty"`    // omitted for hidden cases
+	Expected        string `json:"expected,omitempty"` // omitted for hidden cases
+	Actual          string `json:"actual"`
+	Passed          bool   `json:"passed"`
+	Error           string `json:"error,omitempty"`
 	ExecutionTimeMs int64  `json:"execution_time_ms"`
 }
 
@@ -75,7 +75,7 @@ type CodingAssignmentResponse struct {
 type RunCodeRequest struct {
 	Code     string `json:"code"     binding:"required"`
 	Language string `json:"language" binding:"required,oneof=python javascript"`
-	Input    string `json:"input"`   // arbitrary stdin for quick testing
+	Input    string `json:"input"` // arbitrary stdin for quick testing
 }
 
 type RunCodeResponse struct {

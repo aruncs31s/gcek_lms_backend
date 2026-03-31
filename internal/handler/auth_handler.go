@@ -18,15 +18,16 @@ func NewAuthHandler(userService service.UserService) *AuthHandler {
 }
 
 // Register godoc
-// @Summary      Register a new user
-// @Description  Creates a new user account with the given credentials and role.
-// @Tags         auth
-// @Accept       json
-// @Produce      json
-// @Param        body  body      dto.RegisterRequest  true  "Registration payload"
-// @Success      201   {object}  dto.AuthResponse
-// @Failure      400   {object}  map[string]string
-// @Router       /api/register [post]
+//
+//	@Summary		Register a new user
+//	@Description	Creates a new user account with the given credentials and role.
+//	@Tags			auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			body	body		dto.RegisterRequest	true	"Registration payload"
+//	@Success		201		{object}	dto.AuthResponse
+//	@Failure		400		{object}	map[string]string
+//	@Router			/api/register [post]
 func (h *AuthHandler) Register(c *gin.Context) {
 	var req dto.RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -44,17 +45,18 @@ func (h *AuthHandler) Register(c *gin.Context) {
 }
 
 // Login godoc
-// @Summary      User login
-// @Description  Authenticates a user and returns a JWT token.
-// @Tags         auth
-// @Accept       json
-// @Produce      json
-// @Param        body  body      dto.LoginRequest  true  "Login credentials"
-// @Success      200   {object}  dto.AuthResponse
-// @Failure      400   {object}  map[string]string
-// @Failure      401   {object}  map[string]string
-// @Failure      500   {object}  map[string]string
-// @Router       /api/login [post]
+//
+//	@Summary		User login
+//	@Description	Authenticates a user and returns a JWT token.
+//	@Tags			auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			body	body		dto.LoginRequest	true	"Login credentials"
+//	@Success		200		{object}	dto.AuthResponse
+//	@Failure		400		{object}	map[string]string
+//	@Failure		401		{object}	map[string]string
+//	@Failure		500		{object}	map[string]string
+//	@Router			/api/login [post]
 func (h *AuthHandler) Login(c *gin.Context) {
 	var req dto.LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

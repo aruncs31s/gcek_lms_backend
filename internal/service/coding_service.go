@@ -32,8 +32,8 @@ type CodingService interface {
 }
 
 type codingService struct {
-	codingRepo  repository.CodingRepository
-	courseRepo  repository.CourseRepository
+	codingRepo repository.CodingRepository
+	courseRepo repository.CourseRepository
 }
 
 func NewCodingService(codingRepo repository.CodingRepository, courseRepo repository.CourseRepository) CodingService {

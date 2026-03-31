@@ -23,19 +23,20 @@ func NewAssignmentHandler(assignmentService service.AssignmentService) *Assignme
 // ==========================================
 
 // CreateAssignment godoc
-// @Summary      Create an assignment
-// @Description  Creates a new assignment for a course. Requires Teacher or Admin role.
-// @Tags         assignments
-// @Accept       json
-// @Produce      json
-// @Param        id    path      string                      true  "Course ID (UUID)"
-// @Param        body  body      dto.CreateAssignmentRequest true  "Assignment creation payload"
-// @Success      201   {object}  dto.AssignmentResponse
-// @Failure      400   {object}  map[string]string
-// @Failure      401   {object}  map[string]string
-// @Failure      500   {object}  map[string]string
-// @Security     BearerAuth
-// @Router       /api/courses/{id}/assignments [post]
+//
+//	@Summary		Create an assignment
+//	@Description	Creates a new assignment for a course. Requires Teacher or Admin role.
+//	@Tags			assignments
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path		string						true	"Course ID (UUID)"
+//	@Param			body	body		dto.CreateAssignmentRequest	true	"Assignment creation payload"
+//	@Success		201		{object}	dto.AssignmentResponse
+//	@Failure		400		{object}	map[string]string
+//	@Failure		401		{object}	map[string]string
+//	@Failure		500		{object}	map[string]string
+//	@Security		BearerAuth
+//	@Router			/api/courses/{id}/assignments [post]
 func (h *AssignmentHandler) CreateAssignment(c *gin.Context) {
 	teacherID, err := getUserIdFromContext(c)
 	if err != nil {
@@ -65,17 +66,18 @@ func (h *AssignmentHandler) CreateAssignment(c *gin.Context) {
 }
 
 // GetAssignments godoc
-// @Summary      List assignments
-// @Description  Returns all assignments for a course.
-// @Tags         assignments
-// @Produce      json
-// @Param        id  path  string  true  "Course ID (UUID)"
-// @Success      200  {array}   dto.AssignmentResponse
-// @Failure      400  {object}  map[string]string
-// @Failure      401  {object}  map[string]string
-// @Failure      500  {object}  map[string]string
-// @Security     BearerAuth
-// @Router       /api/courses/{id}/assignments [get]
+//
+//	@Summary		List assignments
+//	@Description	Returns all assignments for a course.
+//	@Tags			assignments
+//	@Produce		json
+//	@Param			id	path		string	true	"Course ID (UUID)"
+//	@Success		200	{array}		dto.AssignmentResponse
+//	@Failure		400	{object}	map[string]string
+//	@Failure		401	{object}	map[string]string
+//	@Failure		500	{object}	map[string]string
+//	@Security		BearerAuth
+//	@Router			/api/courses/{id}/assignments [get]
 func (h *AssignmentHandler) GetAssignments(c *gin.Context) {
 	userID, err := getUserIdFromContext(c)
 	if err != nil {
@@ -99,18 +101,19 @@ func (h *AssignmentHandler) GetAssignments(c *gin.Context) {
 }
 
 // GetAssignmentByID godoc
-// @Summary      Get assignment by ID
-// @Description  Returns details of a specific assignment.
-// @Tags         assignments
-// @Produce      json
-// @Param        id            path  string  true  "Course ID (UUID)"
-// @Param        assignmentId  path  string  true  "Assignment ID (UUID)"
-// @Success      200  {object}  dto.AssignmentResponse
-// @Failure      400  {object}  map[string]string
-// @Failure      401  {object}  map[string]string
-// @Failure      500  {object}  map[string]string
-// @Security     BearerAuth
-// @Router       /api/courses/{id}/assignments/{assignmentId} [get]
+//
+//	@Summary		Get assignment by ID
+//	@Description	Returns details of a specific assignment.
+//	@Tags			assignments
+//	@Produce		json
+//	@Param			id				path		string	true	"Course ID (UUID)"
+//	@Param			assignmentId	path		string	true	"Assignment ID (UUID)"
+//	@Success		200				{object}	dto.AssignmentResponse
+//	@Failure		400				{object}	map[string]string
+//	@Failure		401				{object}	map[string]string
+//	@Failure		500				{object}	map[string]string
+//	@Security		BearerAuth
+//	@Router			/api/courses/{id}/assignments/{assignmentId} [get]
 func (h *AssignmentHandler) GetAssignmentByID(c *gin.Context) {
 	userID, err := getUserIdFromContext(c)
 	if err != nil {
@@ -141,20 +144,21 @@ func (h *AssignmentHandler) GetAssignmentByID(c *gin.Context) {
 }
 
 // UpdateAssignment godoc
-// @Summary      Update an assignment
-// @Description  Updates an existing assignment. Requires Teacher or Admin role.
-// @Tags         assignments
-// @Accept       json
-// @Produce      json
-// @Param        id            path      string                      true  "Course ID (UUID)"
-// @Param        assignmentId  path      string                      true  "Assignment ID (UUID)"
-// @Param        body          body      dto.UpdateAssignmentRequest true  "Assignment update payload"
-// @Success      200   {object}  dto.AssignmentResponse
-// @Failure      400   {object}  map[string]string
-// @Failure      401   {object}  map[string]string
-// @Failure      500   {object}  map[string]string
-// @Security     BearerAuth
-// @Router       /api/courses/{id}/assignments/{assignmentId} [put]
+//
+//	@Summary		Update an assignment
+//	@Description	Updates an existing assignment. Requires Teacher or Admin role.
+//	@Tags			assignments
+//	@Accept			json
+//	@Produce		json
+//	@Param			id				path		string						true	"Course ID (UUID)"
+//	@Param			assignmentId	path		string						true	"Assignment ID (UUID)"
+//	@Param			body			body		dto.UpdateAssignmentRequest	true	"Assignment update payload"
+//	@Success		200				{object}	dto.AssignmentResponse
+//	@Failure		400				{object}	map[string]string
+//	@Failure		401				{object}	map[string]string
+//	@Failure		500				{object}	map[string]string
+//	@Security		BearerAuth
+//	@Router			/api/courses/{id}/assignments/{assignmentId} [put]
 func (h *AssignmentHandler) UpdateAssignment(c *gin.Context) {
 	teacherID, err := getUserIdFromContext(c)
 	if err != nil {
@@ -191,18 +195,19 @@ func (h *AssignmentHandler) UpdateAssignment(c *gin.Context) {
 }
 
 // DeleteAssignment godoc
-// @Summary      Delete an assignment
-// @Description  Deletes an assignment from a course. Requires Teacher or Admin role.
-// @Tags         assignments
-// @Produce      json
-// @Param        id            path  string  true  "Course ID (UUID)"
-// @Param        assignmentId  path  string  true  "Assignment ID (UUID)"
-// @Success      200  {object}  map[string]string
-// @Failure      400  {object}  map[string]string
-// @Failure      401  {object}  map[string]string
-// @Failure      500  {object}  map[string]string
-// @Security     BearerAuth
-// @Router       /api/courses/{id}/assignments/{assignmentId} [delete]
+//
+//	@Summary		Delete an assignment
+//	@Description	Deletes an assignment from a course. Requires Teacher or Admin role.
+//	@Tags			assignments
+//	@Produce		json
+//	@Param			id				path		string	true	"Course ID (UUID)"
+//	@Param			assignmentId	path		string	true	"Assignment ID (UUID)"
+//	@Success		200				{object}	map[string]string
+//	@Failure		400				{object}	map[string]string
+//	@Failure		401				{object}	map[string]string
+//	@Failure		500				{object}	map[string]string
+//	@Security		BearerAuth
+//	@Router			/api/courses/{id}/assignments/{assignmentId} [delete]
 func (h *AssignmentHandler) DeleteAssignment(c *gin.Context) {
 	teacherID, err := getUserIdFromContext(c)
 	if err != nil {
@@ -233,20 +238,21 @@ func (h *AssignmentHandler) DeleteAssignment(c *gin.Context) {
 }
 
 // SubmitAssignment godoc
-// @Summary      Submit an assignment
-// @Description  Submits a file URL as the student's assignment submission.
-// @Tags         assignments
-// @Accept       json
-// @Produce      json
-// @Param        id            path      string                       true  "Course ID (UUID)"
-// @Param        assignmentId  path      string                       true  "Assignment ID (UUID)"
-// @Param        body          body      dto.SubmitAssignmentRequest  true  "Submission payload"
-// @Success      201   {object}  dto.AssignmentSubmissionResponse
-// @Failure      400   {object}  map[string]string
-// @Failure      401   {object}  map[string]string
-// @Failure      500   {object}  map[string]string
-// @Security     BearerAuth
-// @Router       /api/courses/{id}/assignments/{assignmentId}/submit [post]
+//
+//	@Summary		Submit an assignment
+//	@Description	Submits a file URL as the student's assignment submission.
+//	@Tags			assignments
+//	@Accept			json
+//	@Produce		json
+//	@Param			id				path		string						true	"Course ID (UUID)"
+//	@Param			assignmentId	path		string						true	"Assignment ID (UUID)"
+//	@Param			body			body		dto.SubmitAssignmentRequest	true	"Submission payload"
+//	@Success		201				{object}	dto.AssignmentSubmissionResponse
+//	@Failure		400				{object}	map[string]string
+//	@Failure		401				{object}	map[string]string
+//	@Failure		500				{object}	map[string]string
+//	@Security		BearerAuth
+//	@Router			/api/courses/{id}/assignments/{assignmentId}/submit [post]
 func (h *AssignmentHandler) SubmitAssignment(c *gin.Context) {
 	studentID, err := getUserIdFromContext(c)
 	if err != nil {
@@ -283,18 +289,19 @@ func (h *AssignmentHandler) SubmitAssignment(c *gin.Context) {
 }
 
 // GetSubmissions godoc
-// @Summary      Get all submissions
-// @Description  Returns all student submissions for an assignment. Requires Teacher or Admin role.
-// @Tags         assignments
-// @Produce      json
-// @Param        id            path  string  true  "Course ID (UUID)"
-// @Param        assignmentId  path  string  true  "Assignment ID (UUID)"
-// @Success      200  {array}   dto.AssignmentSubmissionResponse
-// @Failure      400  {object}  map[string]string
-// @Failure      401  {object}  map[string]string
-// @Failure      500  {object}  map[string]string
-// @Security     BearerAuth
-// @Router       /api/courses/{id}/assignments/{assignmentId}/submissions [get]
+//
+//	@Summary		Get all submissions
+//	@Description	Returns all student submissions for an assignment. Requires Teacher or Admin role.
+//	@Tags			assignments
+//	@Produce		json
+//	@Param			id				path		string	true	"Course ID (UUID)"
+//	@Param			assignmentId	path		string	true	"Assignment ID (UUID)"
+//	@Success		200				{array}		dto.AssignmentSubmissionResponse
+//	@Failure		400				{object}	map[string]string
+//	@Failure		401				{object}	map[string]string
+//	@Failure		500				{object}	map[string]string
+//	@Security		BearerAuth
+//	@Router			/api/courses/{id}/assignments/{assignmentId}/submissions [get]
 func (h *AssignmentHandler) GetSubmissions(c *gin.Context) {
 	teacherID, err := getUserIdFromContext(c)
 	if err != nil {
@@ -325,21 +332,22 @@ func (h *AssignmentHandler) GetSubmissions(c *gin.Context) {
 }
 
 // GradeSubmission godoc
-// @Summary      Grade a submission
-// @Description  Assigns a score and feedback to a student's submission. Requires Teacher or Admin role.
-// @Tags         assignments
-// @Accept       json
-// @Produce      json
-// @Param        id            path      string                    true  "Course ID (UUID)"
-// @Param        assignmentId  path      string                    true  "Assignment ID (UUID)"
-// @Param        submissionId  path      string                    true  "Submission ID (UUID)"
-// @Param        body          body      dto.GradeSubmissionRequest true  "Grading payload"
-// @Success      200   {object}  dto.AssignmentSubmissionResponse
-// @Failure      400   {object}  map[string]string
-// @Failure      401   {object}  map[string]string
-// @Failure      500   {object}  map[string]string
-// @Security     BearerAuth
-// @Router       /api/courses/{id}/assignments/{assignmentId}/submissions/{submissionId}/grade [put]
+//
+//	@Summary		Grade a submission
+//	@Description	Assigns a score and feedback to a student's submission. Requires Teacher or Admin role.
+//	@Tags			assignments
+//	@Accept			json
+//	@Produce		json
+//	@Param			id				path		string						true	"Course ID (UUID)"
+//	@Param			assignmentId	path		string						true	"Assignment ID (UUID)"
+//	@Param			submissionId	path		string						true	"Submission ID (UUID)"
+//	@Param			body			body		dto.GradeSubmissionRequest	true	"Grading payload"
+//	@Success		200				{object}	dto.AssignmentSubmissionResponse
+//	@Failure		400				{object}	map[string]string
+//	@Failure		401				{object}	map[string]string
+//	@Failure		500				{object}	map[string]string
+//	@Security		BearerAuth
+//	@Router			/api/courses/{id}/assignments/{assignmentId}/submissions/{submissionId}/grade [put]
 func (h *AssignmentHandler) GradeSubmission(c *gin.Context) {
 	teacherID, err := getUserIdFromContext(c)
 	if err != nil {
@@ -383,19 +391,20 @@ func (h *AssignmentHandler) GradeSubmission(c *gin.Context) {
 }
 
 // GetStudentSubmission godoc
-// @Summary      Get own submission
-// @Description  Returns the authenticated student's submission for a specific assignment.
-// @Tags         assignments
-// @Produce      json
-// @Param        id            path  string  true  "Course ID (UUID)"
-// @Param        assignmentId  path  string  true  "Assignment ID (UUID)"
-// @Success      200  {object}  dto.AssignmentSubmissionResponse
-// @Failure      400  {object}  map[string]string
-// @Failure      401  {object}  map[string]string
-// @Failure      404  {object}  map[string]string
-// @Failure      500  {object}  map[string]string
-// @Security     BearerAuth
-// @Router       /api/courses/{id}/assignments/{assignmentId}/submissions/me [get]
+//
+//	@Summary		Get own submission
+//	@Description	Returns the authenticated student's submission for a specific assignment.
+//	@Tags			assignments
+//	@Produce		json
+//	@Param			id				path		string	true	"Course ID (UUID)"
+//	@Param			assignmentId	path		string	true	"Assignment ID (UUID)"
+//	@Success		200				{object}	dto.AssignmentSubmissionResponse
+//	@Failure		400				{object}	map[string]string
+//	@Failure		401				{object}	map[string]string
+//	@Failure		404				{object}	map[string]string
+//	@Failure		500				{object}	map[string]string
+//	@Security		BearerAuth
+//	@Router			/api/courses/{id}/assignments/{assignmentId}/submissions/me [get]
 func (h *AssignmentHandler) GetStudentSubmission(c *gin.Context) {
 	studentID, err := getUserIdFromContext(c)
 	if err != nil {

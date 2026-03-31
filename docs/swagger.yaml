@@ -72,6 +72,8 @@ definitions:
         type: string
       issued_at:
         type: string
+      layout:
+        type: integer
       user_id:
         type: string
     type: object
@@ -159,6 +161,8 @@ definitions:
         items:
           $ref: '#/definitions/dto.ModuleResponse'
         type: array
+      prev_id:
+        type: string
       price:
         type: number
       progress:
@@ -327,12 +331,14 @@ definitions:
         type: boolean
       parent_id:
         type: string
+      pdf_url:
+        type: string
       points:
         type: integer
       title:
         type: string
       type:
-        description: video or chapter
+        description: video, chapter, or pdf
         type: string
       video_url:
         type: string
@@ -359,6 +365,10 @@ definitions:
     properties:
       course_id:
         type: string
+      layout:
+        description: Layout selects one of the 10 certificate designs (1-10). Defaults
+          to 1.
+        type: integer
       user_id:
         type: string
     required:
@@ -438,6 +448,8 @@ definitions:
       order_index:
         type: integer
       parent_id:
+        type: string
+      pdf_url:
         type: string
       points:
         type: integer
@@ -643,9 +655,13 @@ definitions:
         type: boolean
       parent_id:
         type: string
+      pdf_url:
+        type: string
       points:
         type: integer
       title:
+        type: string
+      type:
         type: string
       video_url:
         type: string
@@ -2140,6 +2156,102 @@ paths:
       summary: Get enrollment status
       tags:
       - courses
+  /api/courses/{id}/enrollments/users:
+    get:
+      description: Returns a list of users enrolled in a specific course. Requires
+        Teacher or Admin role.
+      parameters:
+      - description: Course ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get enrolled users
+      tags:
+      - courses
+  /api/courses/{id}/enrollments/users/count:
+    get:
+      description: Returns the total count of users enrolled in a specific course.
+        Requires Teacher or Admin role.
+      parameters:
+      - description: Course ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              format: int64
+              type: integer
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get enrolled users count
+      tags:
+      - courses
   /api/courses/{id}/like:
     delete:
       description: Removes a like from a course for the authenticated user.
@@ -2925,6 +3037,47 @@ paths:
       summary: Upload an image
       tags:
       - uploads
+  /api/upload/pdf:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Uploads a PDF file. Requires Teacher or Admin role.
+      parameters:
+      - description: PDF file
+        in: formData
+        name: pdf
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.UploadResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Upload a PDF
+      tags:
+      - uploads
   /api/upload/video:
     post:
       consumes:
@@ -3081,6 +3234,60 @@ paths:
       security:
       - BearerAuth: []
       summary: Update own profile
+      tags:
+      - users
+  /api/users/search:
+    get:
+      description: Searches users by query and optional role.
+      parameters:
+      - description: Search query
+        in: query
+        name: query
+        required: true
+        type: string
+      - description: Filter by role
+        in: query
+        name: role
+        type: string
+      - default: 50
+        description: Maximum number of results
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset for pagination
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Search users
       tags:
       - users
   /ws/chat:

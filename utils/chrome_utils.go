@@ -158,27 +158,27 @@ func getChromeExecutablePath() string {
 
 // PDFOptions defines parameters for PDF generation
 type PDFOptions struct {
-	Landscape      bool
+	Landscape       bool
 	PrintBackground bool
-	PaperWidth     float64
-	PaperHeight    float64
-	MarginTop      float64
-	MarginBottom   float64
-	MarginLeft     float64
-	MarginRight    float64
+	PaperWidth      float64
+	PaperHeight     float64
+	MarginTop       float64
+	MarginBottom    float64
+	MarginLeft      float64
+	MarginRight     float64
 }
 
 // DefaultPDFOptions returns standard A4 portrait options
 func DefaultPDFOptions() *PDFOptions {
 	return &PDFOptions{
-		Landscape:      false,
+		Landscape:       false,
 		PrintBackground: true,
-		PaperWidth:     8.27,
-		PaperHeight:    11.69,
-		MarginTop:      0.4,
-		MarginBottom:   0.4,
-		MarginLeft:     0.4,
-		MarginRight:    0.4,
+		PaperWidth:      8.27,
+		PaperHeight:     11.69,
+		MarginTop:       0.4,
+		MarginBottom:    0.4,
+		MarginLeft:      0.4,
+		MarginRight:     0.4,
 	}
 }
 
