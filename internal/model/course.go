@@ -1,6 +1,8 @@
 package model
 
 import (
+	"regexp"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -9,6 +11,7 @@ import (
 
 type Course struct {
 	ID                     uuid.UUID  `gorm:"type:uuid;default:gen_random_uuid();primaryKey"`
+	PrevID                 string     `gorm:"type:varchar(255)"`
 	TeacherID              uuid.UUID  `gorm:"type:uuid;not null;index"`
 	Title                  string     `gorm:"type:varchar(255);not null"`
 	Description            string     `gorm:"type:text"`
@@ -33,7 +36,20 @@ func (c *Course) BeforeCreate(tx *gorm.DB) (err error) {
 	if c.ID == uuid.Nil {
 		c.ID = uuid.New()
 	}
+	c.MakePrevID()
 	return
+}
+func (c *Course) MakePrevID() {
+	title := strings.ToLower(c.Title)
+
+	// replace spaces with hyphens
+	title = strings.ReplaceAll(title, " ", "-")
+
+	// optional but recommended: remove special chars
+	reg := regexp.MustCompile(`[^a-z0-9\-]`)
+	title = reg.ReplaceAllString(title, "")
+
+	c.PrevID = title
 }
 
 type Module struct {

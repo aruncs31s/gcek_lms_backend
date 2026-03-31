@@ -531,6 +531,7 @@ func (s *courseService) mapToCourseResponse(course *model.Course, userID uuid.UU
 
 	resp := &dto.CourseResponse{
 		ID:                     course.ID.String(),
+		PrevID:                 course.PrevID,
 		TeacherID:              course.TeacherID.String(),
 		TeacherName:            course.Teacher.Profile.FirstName + " " + course.Teacher.Profile.LastName,
 		TeacherAvatar:          course.Teacher.Profile.AvatarURL,

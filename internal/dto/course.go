@@ -30,6 +30,7 @@ type UpdateCourseRequest struct {
 
 type CourseResponse struct {
 	ID                     string           `json:"id"`
+	PrevID                 string           `json:"prev_id"`
 	TeacherID              string           `json:"teacher_id"`
 	TeacherName            string           `json:"teacher_name,omitempty"`
 	TeacherAvatar          string           `json:"teacher_avatar_url,omitempty"`
