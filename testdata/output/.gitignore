@@ -1,0 +1,2 @@
+# Test output PDFs are gitignored
+*.pdf

@@ -33,8 +33,10 @@ import (
 	"github.com/aruncs/esdc-lms/pkg/config"
 	"github.com/aruncs/esdc-lms/pkg/database"
 	"github.com/aruncs/esdc-lms/pkg/ocr"
+	"github.com/aruncs/esdc-lms/utils"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 func main() {
@@ -46,12 +48,22 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
+	if err := utils.InitChrome(5); err != nil {
+		logger.Log.Warn(
+			"Using hardcoded values",
+		)
+		logger.Log.Warn(
+			"Chrome initialization failed: %v (PDF generation will be slow)",
+			zap.Error(
+				err,
+			),
+		)
+	}
 
 	// Initialize Repositories
 	userRepo := repository.NewUserRepository(db)
 	achievementRepo := repository.NewAchievementRepository(db)
 	courseRepo := repository.NewCourseRepository(db)
-	certRepo := repository.NewCertificateRepository(db)
 	chatRepo := repository.NewChatRepository(db)
 	assignmentRepo := repository.NewAssignmentRepository(db)
 	notificationRepo := repository.NewNotificationRepository(db)
@@ -68,7 +80,7 @@ func main() {
 	jwtSecret := cfg.JWTSecret
 	userService := service.NewUserService(userRepo, achievementRepo, jwtSecret)
 	courseService := service.NewCourseService(courseRepo, userRepo)
-	certService := service.NewCertificateService(certRepo, userRepo, courseRepo, orchestrator)
+	certService := service.NewCertificateService(userRepo, courseRepo, orchestrator)
 	chatService := service.NewChatService(chatRepo)
 	ocrClient := ocr.NewClient("http://localhost:8000")
 	notificationService := service.NewNotificationService(notificationRepo)

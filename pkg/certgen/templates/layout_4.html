@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Certificate of Completion</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@300;400;600;700&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            width: 1056px;
+            height: 816px;
+            background: #d8dde8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #certificate {
+            width: 1010px;
+            height: 780px;
+            background: #fff;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 40px rgba(0,0,0,0.2);
+        }
+
+        /* Top banner */
+        .top-banner {
+            background: linear-gradient(135deg, #0d1f4c 0%, #1a3578 50%, #0d1f4c 100%);
+            height: 160px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            padding: 0 60px;
+            gap: 20px;
+        }
+        .top-banner img { height: 80px; filter: brightness(0) invert(1); opacity: 0.9; }
+        .top-banner-text { flex: 1; text-align: right; }
+        .top-banner-text .label {
+            font-family: 'Source Sans 3', sans-serif;
+            font-size: 0.6rem;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            color: #8fa3c8;
+        }
+        .top-banner-text .title {
+            font-family: 'Libre Baskerville', serif;
+            font-size: 2rem;
+            color: #fff;
+            line-height: 1.1;
+        }
+        .top-banner-text .subtitle {
+            font-family: 'Source Sans 3', sans-serif;
+            font-size: 0.7rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: #c0c8d8;
+        }
+
+        /* Silver diagonal stripe accent */
+        .diagonal-accent {
+            position: absolute;
+            top: 0; right: 0;
+            width: 240px; height: 160px;
+            background: linear-gradient(135deg, transparent 50%, rgba(192,200,216,0.2) 50%);
+        }
+
+        /* Body section */
+        .body {
+            padding: 40px 80px 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .presented-row {
+            font-family: 'Source Sans 3', sans-serif;
+            font-size: 0.7rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: #999;
+            margin-bottom: 10px;
+        }
+
+        .student-name {
+            font-family: 'Libre Baskerville', serif;
+            font-size: 3rem;
+            color: #0d1f4c;
+            font-style: italic;
+            line-height: 1.1;
+            margin-bottom: 14px;
+        }
+
+        .h-rule {
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #0d1f4c 20%, #8c99b4 50%, #0d1f4c 80%, transparent);
+            margin: 14px 0;
+        }
+
+        .course-intro {
+            font-family: 'Source Sans 3', sans-serif;
+            font-size: 0.8rem;
+            color: #666;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+
+        .course-name {
+            font-family: 'Libre Baskerville', serif;
+            font-size: 1.75rem;
+            color: #0d1f4c;
+            max-width: 720px;
+            line-height: 1.3;
+            margin-bottom: 28px;
+        }
+
+        /* Footer with seals */
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            margin-top: 8px;
+            width: 100%;
+        }
+        .sig-block { text-align: center; min-width: 170px; }
+        .sig-hr { border-top: 2px solid #0d1f4c; padding-top: 8px; }
+        .sig-name { font-family: 'Source Sans 3', sans-serif; font-weight: 700; font-size: 0.85rem; color: #0d1f4c; }
+        .sig-title { font-size: 0.65rem; color: #999; letter-spacing: 2px; text-transform: uppercase; margin-top: 3px; }
+
+        .center-seal {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0d1f4c, #1a3578);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid #8c99b4;
+            box-shadow: 0 4px 20px rgba(13,31,76,0.3);
+        }
+        .center-seal .seal-star { color: #c8d0e0; font-size: 2rem; }
+        .center-seal .seal-text { color: #8c99b4; font-size: 0.4rem; letter-spacing: 2px; text-transform: uppercase; font-family: 'Source Sans 3', sans-serif; }
+
+        /* Bottom bar */
+        .bottom-bar {
+            height: 8px;
+            background: linear-gradient(90deg, #0d1f4c, #8c99b4, #0d1f4c);
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="certificate">
+        <div class="top-banner">
+            <img src="{{.LogoDataURI}}" alt="Logo">
+            <div class="top-banner-text">
+                <div class="label">Official Certification</div>
+                <div class="title">Certificate</div>
+                <div class="subtitle">of Completion</div>
+            </div>
+            <div class="diagonal-accent"></div>
+        </div>
+
+        <div class="body">
+            <div class="presented-row">This certificate is proudly presented to</div>
+            <div class="student-name">{{.StudentName}}</div>
+            <div class="h-rule"></div>
+            <div class="course-intro">In recognition of successfully completing the course</div>
+            <div class="course-name">{{.CourseName}}</div>
+
+            <div class="footer">
+                <div class="sig-block">
+                    <div class="sig-hr">
+                        <div class="sig-name">{{.DateIssued}}</div>
+                        <div class="sig-title">Date Issued</div>
+                    </div>
+                </div>
+                <div class="center-seal">
+                    <div class="seal-star">★</div>
+                    <div class="seal-text">Certified</div>
+                </div>
+                <div class="sig-block">
+                    <div class="sig-hr">
+                        <div class="sig-name">{{.TeacherName}}</div>
+                        <div class="sig-title">Lead Instructor</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-bar"></div>
+    </div>
+</body>
+</html>

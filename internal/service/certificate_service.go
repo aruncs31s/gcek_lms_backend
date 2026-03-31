@@ -19,20 +19,17 @@ type CertificateService interface {
 }
 
 type certificateService struct {
-	certRepo     repository.CertificateRepository
 	userRepo     repository.UserRepository
 	courseRepo   repository.CourseRepository
-	orchestrator *certgen.Orchestrator
+	orchestrator certgen.Orchestrator
 }
 
 func NewCertificateService(
-	cr repository.CertificateRepository,
 	ur repository.UserRepository,
 	cor repository.CourseRepository,
-	orc *certgen.Orchestrator,
+	orc certgen.Orchestrator,
 ) CertificateService {
 	return &certificateService{
-		certRepo:     cr,
 		userRepo:     ur,
 		courseRepo:   cor,
 		orchestrator: orc,
@@ -52,8 +49,6 @@ func (s *certificateService) GenerateCertificate(req *dto.GenerateCertificateReq
 	}
 
 	// Fetch required User and Course information
-	// In production we would join Course -> Teacher -> Profile to get TeacherName
-	// For MVP, we'll dummy check if user is completing (in reality, query enrollments)
 	course, err := s.courseRepo.GetCourseByID(courseID)
 	if err != nil || course == nil {
 		return nil, errors.New("course not found")
@@ -72,11 +67,17 @@ func (s *certificateService) GenerateCertificate(req *dto.GenerateCertificateReq
 		}
 	}
 
+	layout := req.Layout
+	if layout < 1 || layout > 10 {
+		layout = 1
+	}
+
 	docModel := certgen.DocumentModel{
 		StudentName: user.Profile.FirstName + " " + user.Profile.LastName,
 		CourseName:  course.Title,
 		TeacherName: teacherName,
 		DateIssued:  time.Now().Format("Jan 02, 2006"),
+		Layout:      layout,
 	}
 
 	// Orchestrator executes Chromeless print
@@ -87,14 +88,14 @@ func (s *certificateService) GenerateCertificate(req *dto.GenerateCertificateReq
 
 	fileURL := baseURL + "/uploads/certificates/" + fileName
 
-	// Save to DB
+	// Save to DB via CourseRepository
 	cert := &model.Certificate{
 		UserID:   userID,
 		CourseID: courseID,
 		FileURL:  fileURL,
 	}
 
-	if err := s.certRepo.SaveCertificate(cert); err != nil {
+	if err := s.courseRepo.SaveCertificate(cert); err != nil {
 		return nil, err
 	}
 
@@ -104,5 +105,6 @@ func (s *certificateService) GenerateCertificate(req *dto.GenerateCertificateReq
 		CourseID: cert.CourseID.String(),
 		FileURL:  cert.FileURL,
 		IssuedAt: cert.IssuedAt,
+		Layout:   layout,
 	}, nil
 }
