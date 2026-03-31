@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Certificate of Completion</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            width: 1056px;
+            height: 816px;
+            background: #eef2fb;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #certificate {
+            width: 1010px;
+            height: 780px;
+            background: #ffffff;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 60px rgba(30,70,200,0.12);
+        }
+
+        /* Top accent bar */
+        .top-bar {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 8px;
+            background: linear-gradient(90deg, #1e46c8, #4f8ef7, #1e46c8);
+        }
+
+        /* Bold side accent */
+        .left-accent {
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 6px;
+            background: linear-gradient(180deg, #1e46c8 0%, #4f8ef7 50%, #1e46c8 100%);
+        }
+
+        .main-content {
+            position: absolute;
+            top: 0; left: 6px; right: 0; bottom: 0;
+            display: flex;
+            flex-direction: column;
+            padding: 50px 80px 40px 80px;
+        }
+
+        /* Header row */
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e0e6f4;
+            padding-bottom: 24px;
+        }
+        .header-row img { height: 55px; object-fit: contain; }
+        .cert-type {
+            text-align: right;
+        }
+        .cert-type .label {
+            font-size: 0.62rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: #1e46c8;
+            font-weight: 600;
+        }
+        .cert-type .title {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.8rem;
+            color: #111;
+            line-height: 1;
+            margin-top: 4px;
+        }
+
+        /* Center body */
+        .center-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 20px 0;
+        }
+        .presented-label {
+            font-size: 0.7rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #888;
+            margin-bottom: 8px;
+        }
+        .student-name {
+            font-family: 'DM Serif Display', serif;
+            font-size: 3.4rem;
+            color: #111;
+            line-height: 1.1;
+            margin-bottom: 24px;
+        }
+        .for-completing {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+        .course-name {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.9rem;
+            color: #1e46c8;
+            line-height: 1.2;
+            max-width: 700px;
+        }
+        .blue-underline {
+            width: 60px;
+            height: 4px;
+            background: #1e46c8;
+            margin: 18px 0;
+            border-radius: 2px;
+        }
+
+        /* Footer */
+        .footer-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            border-top: 1px solid #e0e6f4;
+            padding-top: 20px;
+        }
+        .sig-block { min-width: 150px; }
+        .sig-value { font-weight: 600; color: #111; font-size: 0.85rem; }
+        .sig-key { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 2px; color: #aaa; margin-top: 4px; }
+
+        .badge-num {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #1e46c8;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .badge-num span { color: #fff; font-size: 0.5rem; letter-spacing: 1px; text-align: center; }
+        .badge-num .num { font-size: 1.2rem; font-weight: 700; }
+    </style>
+</head>
+<body>
+    <div id="certificate">
+        <div class="top-bar"></div>
+        <div class="left-accent"></div>
+        <div class="main-content">
+            <div class="header-row">
+                <img src="{{.LogoDataURI}}" alt="ESDC Logo">
+                <div class="cert-type">
+                    <div class="label">Official Document</div>
+                    <div class="title">Certificate of Completion</div>
+                </div>
+            </div>
+
+            <div class="center-body">
+                <div class="presented-label">Awarded to</div>
+                <div class="student-name">{{.StudentName}}</div>
+                <div class="for-completing">For successfully completing the course</div>
+                <div class="course-name">{{.CourseName}}</div>
+                <div class="blue-underline"></div>
+            </div>
+
+            <div class="footer-row">
+                <div class="sig-block">
+                    <div class="sig-value">{{.TeacherName}}</div>
+                    <div class="sig-key">Lead Instructor</div>
+                </div>
+                <div class="badge-num">
+                    <span class="num">★</span>
+                    <span>Certified</span>
+                </div>
+                <div class="sig-block" style="text-align:right;">
+                    <div class="sig-value">{{.DateIssued}}</div>
+                    <div class="sig-key">Date Issued</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

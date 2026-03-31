@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Certificate of Completion</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Raleway:wght@300;400;500&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            width: 1056px;
+            height: 816px;
+            background: #0f0f0f;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #certificate {
+            width: 1010px;
+            height: 780px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #242424 50%, #1a1a1a 100%);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #3a3a3a;
+        }
+
+        /* Gold border glow */
+        #certificate::before {
+            content: '';
+            position: absolute;
+            inset: 16px;
+            border: 1px solid #c9a227;
+            pointer-events: none;
+            z-index: 3;
+        }
+        #certificate::after {
+            content: '';
+            position: absolute;
+            inset: 20px;
+            border: 1px solid rgba(201,162,39,0.2);
+            pointer-events: none;
+            z-index: 3;
+        }
+
+        /* Radial glow background */
+        .glow {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px; height: 400px;
+            background: radial-gradient(ellipse, rgba(201,162,39,0.06) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        /* Decorative corner pieces */
+        .corner { position: absolute; width: 50px; height: 50px; }
+        .corner.tl { top: 26px; left: 26px; border-top: 2px solid #c9a227; border-left: 2px solid #c9a227; }
+        .corner.tr { top: 26px; right: 26px; border-top: 2px solid #c9a227; border-right: 2px solid #c9a227; }
+        .corner.bl { bottom: 26px; left: 26px; border-bottom: 2px solid #c9a227; border-left: 2px solid #c9a227; }
+        .corner.br { bottom: 26px; right: 26px; border-bottom: 2px solid #c9a227; border-right: 2px solid #c9a227; }
+
+        .content {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 50px 100px;
+            text-align: center;
+            z-index: 2;
+        }
+
+        .logo-wrap { margin-bottom: 12px; }
+        .logo-wrap img { height: 48px; filter: brightness(0) invert(1); opacity: 0.85; }
+
+        .inst-name {
+            font-family: 'Raleway', sans-serif;
+            font-size: 0.55rem;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            color: #c9a227;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .cert-headline {
+            font-family: 'Cinzel', serif;
+            font-size: 2.2rem;
+            color: #f0e6c8;
+            letter-spacing: 8px;
+            text-transform: uppercase;
+            line-height: 1;
+        }
+        .cert-sub {
+            font-family: 'Cinzel', serif;
+            font-size: 0.85rem;
+            color: #c9a227;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            margin-top: 6px;
+        }
+
+        .divider {
+            display: flex; align-items: center; gap: 14px;
+            margin: 22px 0;
+            width: 480px;
+        }
+        .div-line { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, #c9a227, transparent); }
+        .div-gem { color: #c9a227; font-size: 0.8rem; }
+
+        .presented {
+            font-family: 'Raleway', sans-serif;
+            font-size: 0.65rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: #888;
+            margin-bottom: 8px;
+        }
+
+        .student-name {
+            font-family: 'EB Garamond', serif;
+            font-size: 3.2rem;
+            color: #f0e6c8;
+            font-style: italic;
+            line-height: 1.1;
+            margin-bottom: 18px;
+        }
+
+        .course-label {
+            font-size: 0.6rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: #666;
+            margin-bottom: 6px;
+            font-family: 'Raleway', sans-serif;
+        }
+        .course-name {
+            font-family: 'Cinzel', serif;
+            font-size: 1.3rem;
+            color: #c9a227;
+            max-width: 700px;
+            line-height: 1.4;
+            margin-bottom: 24px;
+        }
+
+        .footer-row {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 8px;
+        }
+        .sig-block { text-align: center; min-width: 140px; }
+        .sig-line { border-top: 1px solid #444; padding-top: 8px; }
+        .sig-val { font-family: 'Raleway', sans-serif; font-size: 0.75rem; color: #ccc; font-weight: 500; }
+        .sig-key { font-size: 0.55rem; letter-spacing: 3px; text-transform: uppercase; color: #666; margin-top: 3px; }
+    </style>
+</head>
+<body>
+    <div id="certificate">
+        <div class="glow"></div>
+        <div class="corner tl"></div>
+        <div class="corner tr"></div>
+        <div class="corner bl"></div>
+        <div class="corner br"></div>
+
+        <div class="content">
+            <div class="logo-wrap"><img src="{{.LogoDataURI}}" alt="Logo"></div>
+            <div class="inst-name">ESDC Learning Management System</div>
+
+            <div class="cert-headline">Certificate</div>
+            <div class="cert-sub">of Completion</div>
+
+            <div class="divider">
+                <div class="div-line"></div>
+                <div class="div-gem">◆</div>
+                <div class="div-line"></div>
+            </div>
+
+            <div class="presented">Proudly presented to</div>
+            <div class="student-name">{{.StudentName}}</div>
+
+            <div class="course-label">For successfully completing</div>
+            <div class="course-name">{{.CourseName}}</div>
+
+            <div class="divider">
+                <div class="div-line"></div>
+                <div class="div-gem">◆</div>
+                <div class="div-line"></div>
+            </div>
+
+            <div class="footer-row">
+                <div class="sig-block">
+                    <div class="sig-line">
+                        <div class="sig-val">{{.DateIssued}}</div>
+                        <div class="sig-key">Date Issued</div>
+                    </div>
+                </div>
+                <div class="sig-block">
+                    <div class="sig-line">
+                        <div class="sig-val">{{.TeacherName}}</div>
+                        <div class="sig-key">Lead Instructor</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

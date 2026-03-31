@@ -3,14 +3,14 @@ package certgen
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"fmt"
 	"html/template"
 	"os"
 	"path/filepath"
 	"time"
 
-	"github.com/chromedp/cdproto/page"
-	"github.com/chromedp/chromedp"
+	"github.com/aruncs/esdc-lms/utils"
 	"github.com/google/uuid"
 )
 
@@ -20,28 +20,58 @@ type DocumentModel struct {
 	CourseName  string
 	TeacherName string
 	DateIssued  string
+	// Layout selects which of the 10 templates to use (1-10). Defaults to 1.
+	Layout int
+	// LogoDataURI is the base64-encoded PNG logo embedded as a data URI
+	LogoDataURI template.URL
 }
 
-// Orchestrator handles rendering HTML templates and converting them to PDFs using chromedp Worker
-type Orchestrator struct {
+// Orchestrator defines the interface for generating PDF certificates.
+type Orchestrator interface {
+	GeneratePDF(model DocumentModel) (string, error)
+}
+
+// orchestratorImpl handles rendering HTML templates and converting them to PDFs using Chrome Pool.
+type orchestratorImpl struct {
 	TemplatesDir string
 	UploadsDir   string
 }
 
-func NewOrchestrator(templatesDir, uploadsDir string) *Orchestrator {
-	return &Orchestrator{
+func NewOrchestrator(templatesDir, uploadsDir string) Orchestrator {
+	return &orchestratorImpl{
 		TemplatesDir: templatesDir,
 		UploadsDir:   uploadsDir,
 	}
 }
 
+// loadLogoAsDataURI reads the logo PNG and returns a base64 data URI string.
+func (o *orchestratorImpl) loadLogoAsDataURI() template.URL {
+	logoPath := filepath.Join(o.TemplatesDir, "logo.png")
+	data, err := os.ReadFile(logoPath)
+	if err != nil {
+		return ""
+	}
+	encoded := base64.StdEncoding.EncodeToString(data)
+	return template.URL("data:image/png;base64," + encoded)
+}
+
 // GeneratePDF orchestrates the document model injection and PDF printing
-func (o *Orchestrator) GeneratePDF(model DocumentModel) (string, error) {
-	// 1. Load HTML Template
-	tmplPath := filepath.Join(o.TemplatesDir, "certificate.html")
+func (o *orchestratorImpl) GeneratePDF(model DocumentModel) (string, error) {
+	// Validate layout range
+	layout := model.Layout
+	if layout < 1 || layout > 10 {
+		layout = 1
+	}
+
+	// Inject logo as data URI so the HTML file loaded from /tmp can render it
+	model.LogoDataURI = o.loadLogoAsDataURI()
+
+	// 1. Load HTML Template based on layout number
+	templateName := fmt.Sprintf("layout_%d.html", layout)
+	tmplPath := filepath.Join(o.TemplatesDir, templateName)
 	tmpl, err := template.ParseFiles(tmplPath)
 	if err != nil {
-		return "", fmt.Errorf("failed to parse template: %w", err)
+		return "", fmt.Errorf("failed to parse template %s: %w", templateName, err)
 	}
 
 	// 2. Inject DocumentModel into Template
@@ -50,52 +80,24 @@ func (o *Orchestrator) GeneratePDF(model DocumentModel) (string, error) {
 		return "", fmt.Errorf("failed to execute template: %w", err)
 	}
 
-	// Save temporary HTML file
-	tempHTMLPath := filepath.Join(os.TempDir(), fmt.Sprintf("cert_%d.html", time.Now().UnixNano()))
-	if err := os.WriteFile(tempHTMLPath, renderedHTML.Bytes(), 0644); err != nil {
-		return "", fmt.Errorf("failed to write temp html: %w", err)
+	// 3. Convert HTML string to PDF using pooled Chrome instance
+	opts := &utils.PDFOptions{
+		Landscape:       false, // Setting false here, since Width > Height automatically creates a landscape page
+		PrintBackground: true,
+		PaperWidth:      11,
+		PaperHeight:     8.5,
+		MarginTop:       0,
+		MarginBottom:    0,
+		MarginLeft:      0,
+		MarginRight:     0,
 	}
-	defer os.Remove(tempHTMLPath) // clean up
 
-	// 3. Setup Chromedp Worker Context
-	// Note: In production you might want an allocator that keeps chrome running a bit longer,
-	// but context.WithCancel works well for stateless orchestration.
-	ctx, cancel := chromedp.NewContext(context.Background())
-	defer cancel()
-
-	// Timeout
-	ctx, cancelTimeout := context.WithTimeout(ctx, 30*time.Second)
-	defer cancelTimeout()
-
-	// 4. Generate PDF bytes using Chromedp worker
-	var pdfBuf []byte
-	fileURL := "file://" + tempHTMLPath
-
-	err = chromedp.Run(ctx,
-		chromedp.Navigate(fileURL),
-		chromedp.WaitVisible("#certificate", chromedp.ByID),
-		chromedp.ActionFunc(func(ctx context.Context) error {
-			// Print to PDF
-			var err error
-			pdfBuf, _, err = page.PrintToPDF().
-				WithPrintBackground(true).
-				WithLandscape(true). // A4 landscape mapping
-				WithMarginTop(0).
-				WithMarginBottom(0).
-				WithMarginLeft(0).
-				WithMarginRight(0).
-				WithPaperWidth(11).   // inches (A4 roughly)
-				WithPaperHeight(8.5). // inches (A4 roughly)
-				Do(ctx)
-			return err
-		}),
-	)
-
+	pdfBuf, err := utils.ConvertHTMLToPDF(context.Background(), renderedHTML.String(), opts)
 	if err != nil {
-		return "", fmt.Errorf("chromedp failed to generate pdf: %w", err)
+		return "", fmt.Errorf("failed to generate pdf: %w", err)
 	}
 
-	// 5. Save the resulting PDF securely to uploads directory
+	// 4. Save the resulting PDF securely to uploads directory
 	if err := os.MkdirAll(o.UploadsDir, os.ModePerm); err != nil {
 		return "", fmt.Errorf("failed to create uploads dir: %w", err)
 	}

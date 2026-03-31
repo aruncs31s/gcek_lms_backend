@@ -58,6 +58,9 @@ type CourseWriter interface {
 	CreateReview(
 		review *model.CourseReview,
 	) error
+	SaveCertificate(
+		cert *model.Certificate,
+	) error
 }
 
 type CourseReader interface {
@@ -332,4 +335,8 @@ func (r *courseRepository) SearchCourses(query string, courseType string, format
 		"courses.thumbnail_url",
 	).Order("created_at desc").Limit(limit).Offset(offset).Find(&courses).Error
 	return courses, err
+}
+
+func (r *courseRepository) SaveCertificate(cert *model.Certificate) error {
+	return r.db.Create(cert).Error
 }

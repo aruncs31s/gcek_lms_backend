@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Certificate of Completion</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Gilda+Display&family=Quicksand:wght@300;400;500;600;700&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            width: 1056px;
+            height: 816px;
+            background: #f0e0e8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #certificate {
+            width: 1010px;
+            height: 780px;
+            background: linear-gradient(135deg, #fff8f8 0%, #ffeef4 40%, #fff8fb 100%);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 50px rgba(200,100,130,0.18);
+            border: 1px solid #f0c8d4;
+        }
+
+        /* Rose gold double border */
+        #certificate::before {
+            content: '';
+            position: absolute;
+            inset: 14px;
+            border: 2px solid #c9827a;
+            pointer-events: none;
+            z-index: 3;
+        }
+        #certificate::after {
+            content: '';
+            position: absolute;
+            inset: 18px;
+            border: 1px solid rgba(201,130,122,0.3);
+            pointer-events: none;
+            z-index: 3;
+        }
+
+        /* Soft pink gradient wash */
+        .wash {
+            position: absolute;
+            top: -100px; right: -100px;
+            width: 500px; height: 500px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(200,100,130,0.07) 0%, transparent 70%);
+        }
+        .wash2 {
+            position: absolute;
+            bottom: -80px; left: -80px;
+            width: 380px; height: 380px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(180,80,110,0.06) 0%, transparent 70%);
+        }
+
+        /* Ribbons */
+        .ribbon-top {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #c9827a, #e8b4a0, #c9827a);
+        }
+        .ribbon-bot {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #c9827a, #e8b4a0, #c9827a);
+        }
+
+        .content {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 50px 90px;
+            text-align: center;
+            z-index: 2;
+        }
+
+        .logo-area { margin-bottom: 10px; }
+        .logo-area img { height: 50px; mix-blend-mode: multiply; }
+
+        .inst-name {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 0.55rem;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            color: #c9827a;
+            margin-bottom: 16px;
+            font-weight: 700;
+        }
+
+        .cert-title {
+            font-family: 'Gilda Display', serif;
+            font-size: 3rem;
+            color: #7a3040;
+            line-height: 1;
+            letter-spacing: 2px;
+        }
+        .cert-sub {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 0.65rem;
+            letter-spacing: 8px;
+            text-transform: uppercase;
+            color: #c9827a;
+            margin-top: 4px;
+            margin-bottom: 18px;
+            font-weight: 600;
+        }
+
+        .rg-divider {
+            display: flex; align-items: center; gap: 12px;
+            width: 380px; margin: 0 auto 18px;
+        }
+        .rg-line { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, #c9827a, transparent); }
+        .rg-diamond { width: 6px; height: 6px; background: #c9827a; transform: rotate(45deg); }
+
+        .presented {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 0.65rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: #c0a0a8;
+            margin-bottom: 6px;
+        }
+
+        .student-name {
+            font-family: 'Gilda Display', serif;
+            font-size: 3.2rem;
+            color: #7a3040;
+            line-height: 1.1;
+            margin-bottom: 18px;
+        }
+
+        .course-label {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 0.7rem;
+            color: #c0a0a8;
+            letter-spacing: 2px;
+            margin-bottom: 4px;
+        }
+
+        .course-name {
+            font-family: 'Gilda Display', serif;
+            font-size: 1.75rem;
+            color: #7a3040;
+            max-width: 700px;
+            line-height: 1.3;
+            margin-bottom: 20px;
+        }
+
+        .footer-row {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .sig-block { text-align: center; min-width: 150px; }
+        .sig-hr { border-top: 1px solid #e8b4a0; padding-top: 8px; }
+        .sig-val { font-family: 'Quicksand', sans-serif; font-size: 0.8rem; color: #7a3040; font-weight: 600; }
+        .sig-key { font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; color: #c0a0a8; margin-top: 3px; }
+
+        .rg-seal {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #c9827a, #e8b4a0, #c9827a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(201,130,122,0.35);
+            border: 3px solid #fff;
+        }
+        .rg-seal span { color: #fff; font-size: 1.8rem; text-shadow: 0 1px 3px rgba(100,40,50,0.3); }
+    </style>
+</head>
+<body>
+    <div id="certificate">
+        <div class="wash"></div>
+        <div class="wash2"></div>
+        <div class="ribbon-top"></div>
+        <div class="ribbon-bot"></div>
+
+        <div class="content">
+            <div class="logo-area"><img src="{{.LogoDataURI}}" alt="Logo"></div>
+            <div class="inst-name">ESDC · Learning Management System</div>
+
+            <div class="cert-title">Certificate</div>
+            <div class="cert-sub">of Completion</div>
+
+            <div class="rg-divider">
+                <div class="rg-line"></div>
+                <div class="rg-diamond"></div>
+                <div class="rg-line"></div>
+            </div>
+
+            <div class="presented">With pleasure, presented to</div>
+            <div class="student-name">{{.StudentName}}</div>
+
+            <div class="course-label">For successfully completing</div>
+            <div class="course-name">{{.CourseName}}</div>
+
+            <div class="rg-divider">
+                <div class="rg-line"></div>
+                <div class="rg-diamond"></div>
+                <div class="rg-line"></div>
+            </div>
+
+            <div class="footer-row">
+                <div class="sig-block">
+                    <div class="sig-hr">
+                        <div class="sig-val">{{.DateIssued}}</div>
+                        <div class="sig-key">Date Issued</div>
+                    </div>
+                </div>
+                <div class="rg-seal"><span>✿</span></div>
+                <div class="sig-block">
+                    <div class="sig-hr">
+                        <div class="sig-val">{{.TeacherName}}</div>
+                        <div class="sig-key">Lead Instructor</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

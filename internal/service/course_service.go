@@ -292,6 +292,7 @@ func (s *courseService) CreateModule(courseID uuid.UUID, teacherID uuid.UUID, re
 		Description: req.Description,
 		Type:        req.Type,
 		VideoURL:    req.VideoURL,
+		PDFURL:      req.PDFURL,
 		Points:      req.Points,
 		IsFree:      req.IsFree,
 		OrderIndex:  nextOrder,
@@ -315,6 +316,7 @@ func (s *courseService) CreateModule(courseID uuid.UUID, teacherID uuid.UUID, re
 		Description: module.Description,
 		Type:        module.Type,
 		VideoURL:    module.VideoURL,
+		PDFURL:      module.PDFURL,
 		Points:      module.Points,
 		IsFree:      module.IsFree,
 		OrderIndex:  module.OrderIndex,
@@ -357,8 +359,14 @@ func (s *courseService) UpdateModule(courseID uuid.UUID, moduleID uuid.UUID, tea
 	if req.Description != nil {
 		module.Description = *req.Description
 	}
+	if req.Type != nil && *req.Type != "" {
+		module.Type = *req.Type
+	}
 	if req.VideoURL != nil {
 		module.VideoURL = *req.VideoURL
+	}
+	if req.PDFURL != nil {
+		module.PDFURL = *req.PDFURL
 	}
 	if req.Points != nil {
 		module.Points = *req.Points
@@ -385,6 +393,7 @@ func (s *courseService) UpdateModule(courseID uuid.UUID, moduleID uuid.UUID, tea
 		Description: module.Description,
 		Type:        module.Type,
 		VideoURL:    module.VideoURL,
+		PDFURL:      module.PDFURL,
 		Points:      module.Points,
 		IsFree:      module.IsFree,
 		OrderIndex:  module.OrderIndex,
@@ -522,6 +531,7 @@ func (s *courseService) mapToCourseResponse(course *model.Course, userID uuid.UU
 
 	resp := &dto.CourseResponse{
 		ID:                     course.ID.String(),
+		PrevID:                 course.PrevID,
 		TeacherID:              course.TeacherID.String(),
 		TeacherName:            course.Teacher.Profile.FirstName + " " + course.Teacher.Profile.LastName,
 		TeacherAvatar:          course.Teacher.Profile.AvatarURL,
@@ -570,6 +580,7 @@ func (s *courseService) mapToCourseResponse(course *model.Course, userID uuid.UU
 				Description: m.Description,
 				Type:        m.Type,
 				VideoURL:    m.VideoURL,
+				PDFURL:      m.PDFURL,
 				Points:      m.Points,
 				IsFree:      m.IsFree,
 				OrderIndex:  m.OrderIndex,
