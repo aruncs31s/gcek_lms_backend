@@ -63,6 +63,7 @@ func main() {
 	// Initialize Repositories
 	userRepo := repository.NewUserRepository(db)
 	achievementRepo := repository.NewAchievementRepository(db)
+	refreshTokenRepo := repository.NewRefreshTokenRepository(db)
 	courseRepo := repository.NewCourseRepository(db)
 	chatRepo := repository.NewChatRepository(db)
 	assignmentRepo := repository.NewAssignmentRepository(db)
@@ -78,7 +79,7 @@ func main() {
 
 	// Initialize Services
 	jwtSecret := cfg.JWTSecret
-	userService := service.NewUserService(userRepo, achievementRepo, jwtSecret)
+	userService := service.NewUserService(userRepo, achievementRepo, refreshTokenRepo, jwtSecret)
 	courseService := service.NewCourseService(courseRepo, userRepo)
 	certService := service.NewCertificateService(userRepo, courseRepo, orchestrator)
 	chatService := service.NewChatService(chatRepo)
