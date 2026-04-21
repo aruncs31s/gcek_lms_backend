@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/aruncs31s/gcek_lms_backend/internal/model"
 	"github.com/aruncs31s/gcek_lms_backend/pkg/config"
+	"github.com/aruncs31s/gcek_lms_backend/pkg/model"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )

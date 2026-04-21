@@ -1,6 +1,6 @@
 package repository
 
-import "github.com/aruncs31s/gcek_lms_backend/internal/model"
+import "github.com/aruncs31s/gcek_lms_backend/pkg/model"
 
 type UploadedMediaRepository interface {
 	SaveMedia(

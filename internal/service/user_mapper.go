@@ -2,7 +2,7 @@ package service
 
 import (
 	"github.com/aruncs31s/gcek_lms_backend/internal/dto"
-	"github.com/aruncs31s/gcek_lms_backend/internal/model"
+	"github.com/aruncs31s/gcek_lms_backend/pkg/model"
 )
 
 type UserMapper interface {
