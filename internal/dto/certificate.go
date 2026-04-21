@@ -17,4 +17,3 @@ type CertificateResponse struct {
 	IssuedAt time.Time `json:"issued_at"`
 	Layout   int       `json:"layout"`
 }
-

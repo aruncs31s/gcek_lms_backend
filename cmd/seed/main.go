@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/aruncs/esdc-lms/cmd"
+	"github.com/aruncs31s/gcek_lms_backend/cmd"
 )
 
 func main() {

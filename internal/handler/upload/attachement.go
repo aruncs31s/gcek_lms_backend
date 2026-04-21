@@ -7,9 +7,9 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/aruncs/esdc-lms/internal/dto"
-	"github.com/aruncs/esdc-lms/internal/logger"
-	"github.com/aruncs/esdc-lms/internal/middleware"
+	"github.com/aruncs31s/gcek_lms_backend/internal/dto"
+	"github.com/aruncs31s/gcek_lms_backend/internal/logger"
+	"github.com/aruncs31s/gcek_lms_backend/internal/middleware"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"go.uber.org/zap"

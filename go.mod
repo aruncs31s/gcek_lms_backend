@@ -1,4 +1,4 @@
-module github.com/aruncs/esdc-lms
+module github.com/aruncs31s/gcek_lms_backend
 
 go 1.25.6
 

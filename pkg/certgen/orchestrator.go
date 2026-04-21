@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/aruncs/esdc-lms/utils"
+	"github.com/aruncs31s/gcek_lms_backend/utils"
 	"github.com/google/uuid"
 )
 

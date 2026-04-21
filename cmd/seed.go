@@ -5,9 +5,9 @@ import (
 	"log"
 	"time"
 
-	"github.com/aruncs/esdc-lms/internal/model"
-	"github.com/aruncs/esdc-lms/pkg/config"
-	"github.com/aruncs/esdc-lms/pkg/database"
+	"github.com/aruncs31s/gcek_lms_backend/internal/model"
+	"github.com/aruncs31s/gcek_lms_backend/pkg/config"
+	"github.com/aruncs31s/gcek_lms_backend/pkg/database"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )

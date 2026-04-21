@@ -2316,6 +2316,151 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/courses/{id}/enrollments/users": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns a list of users enrolled in a specific course. Requires Teacher or Admin role.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "courses"
+                ],
+                "summary": "Get enrolled users",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Course ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/courses/{id}/enrollments/users/count": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns the total count of users enrolled in a specific course. Requires Teacher or Admin role.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "courses"
+                ],
+                "summary": "Get enrolled users count",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Course ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "integer",
+                                "format": "int64"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/courses/{id}/like": {
             "post": {
                 "security": [
@@ -3410,6 +3555,70 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/upload/pdf": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Uploads a PDF file. Requires Teacher or Admin role.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "uploads"
+                ],
+                "summary": "Upload a PDF",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "PDF file",
+                        "name": "pdf",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.UploadResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/upload/video": {
             "post": {
                 "security": [
@@ -3565,6 +3774,88 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/dto.UserResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/search": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Searches users by query and optional role.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Search users",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Search query",
+                        "name": "query",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by role",
+                        "name": "role",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 50,
+                        "description": "Maximum number of results",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Offset for pagination",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     },
                     "400": {
@@ -3805,6 +4096,9 @@ const docTemplate = `{
                 "issued_at": {
                     "type": "string"
                 },
+                "layout": {
+                    "type": "integer"
+                },
                 "user_id": {
                     "type": "string"
                 }
@@ -3936,6 +4230,9 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/dto.ModuleResponse"
                     }
+                },
+                "prev_id": {
+                    "type": "string"
                 },
                 "price": {
                     "type": "number"
@@ -4188,6 +4485,9 @@ const docTemplate = `{
                 "parent_id": {
                     "type": "string"
                 },
+                "pdf_url": {
+                    "type": "string"
+                },
                 "points": {
                     "type": "integer"
                 },
@@ -4195,7 +4495,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "type": {
-                    "description": "video or chapter",
+                    "description": "video, chapter, or pdf",
                     "type": "string"
                 },
                 "video_url": {
@@ -4235,6 +4535,10 @@ const docTemplate = `{
             "properties": {
                 "course_id": {
                     "type": "string"
+                },
+                "layout": {
+                    "description": "Layout selects one of the 10 certificate designs (1-10). Defaults to 1.",
+                    "type": "integer"
                 },
                 "user_id": {
                     "type": "string"
@@ -4352,6 +4656,9 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "parent_id": {
+                    "type": "string"
+                },
+                "pdf_url": {
                     "type": "string"
                 },
                 "points": {
@@ -4658,10 +4965,16 @@ const docTemplate = `{
                 "parent_id": {
                     "type": "string"
                 },
+                "pdf_url": {
+                    "type": "string"
+                },
                 "points": {
                     "type": "integer"
                 },
                 "title": {
+                    "type": "string"
+                },
+                "type": {
                     "type": "string"
                 },
                 "video_url": {

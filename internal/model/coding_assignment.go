@@ -16,15 +16,15 @@ type CodingAssignment struct {
 	Description string    `gorm:"type:text"`
 	Language    string    `gorm:"type:varchar(32);not null;default:'python'"` // python | javascript
 	StarterCode string    `gorm:"type:text"`                                  // Code skeleton given to the student
-	TestCases   string    `gorm:"type:jsonb;not null;default:'[]'"`            // JSON array of TestCase objects
+	TestCases   string    `gorm:"type:jsonb;not null;default:'[]'"`           // JSON array of TestCase objects
 	MaxScore    int       `gorm:"default:100"`
 	DueDate     *time.Time
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 	DeletedAt   gorm.DeletedAt `gorm:"index"`
 
-	Course      Course              `gorm:"foreignKey:CourseID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-	Submissions []CodingSubmission  `gorm:"foreignKey:CodingAssignmentID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Course      Course             `gorm:"foreignKey:CourseID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Submissions []CodingSubmission `gorm:"foreignKey:CodingAssignmentID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 func (ca *CodingAssignment) BeforeCreate(tx *gorm.DB) (err error) {
