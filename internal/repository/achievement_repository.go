@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"github.com/aruncs31s/gcek_lms_backend/internal/model"
+	"github.com/aruncs31s/gcek_lms_backend/pkg/model"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )

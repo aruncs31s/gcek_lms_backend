@@ -3,7 +3,7 @@ package routes
 import (
 	"github.com/aruncs31s/gcek_lms_backend/internal/handler"
 	"github.com/aruncs31s/gcek_lms_backend/internal/middleware"
-	"github.com/aruncs31s/gcek_lms_backend/internal/model"
+	"github.com/aruncs31s/gcek_lms_backend/pkg/model"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
