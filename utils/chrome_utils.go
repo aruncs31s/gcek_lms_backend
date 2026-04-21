@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/aruncs/esdc-lms/internal/logger"
+	"github.com/aruncs31s/gcek_lms_backend/internal/logger"
 	"github.com/chromedp/cdproto/page"
 	"github.com/chromedp/chromedp"
 	"go.uber.org/zap"

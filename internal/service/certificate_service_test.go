@@ -6,11 +6,11 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/aruncs/esdc-lms/internal/dto"
-	"github.com/aruncs/esdc-lms/internal/model"
-	"github.com/aruncs/esdc-lms/internal/service"
-	"github.com/aruncs/esdc-lms/internal/service/mocks"
-	"github.com/aruncs/esdc-lms/pkg/certgen"
+	"github.com/aruncs31s/gcek_lms_backend/internal/dto"
+	"github.com/aruncs31s/gcek_lms_backend/internal/model"
+	"github.com/aruncs31s/gcek_lms_backend/internal/service"
+	"github.com/aruncs31s/gcek_lms_backend/internal/service/mocks"
+	"github.com/aruncs31s/gcek_lms_backend/pkg/certgen"
 	"github.com/google/uuid"
 )
 

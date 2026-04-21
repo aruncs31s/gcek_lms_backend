@@ -3,8 +3,8 @@ package handler
 import (
 	"net/http"
 
-	"github.com/aruncs/esdc-lms/internal/dto"
-	"github.com/aruncs/esdc-lms/internal/repository"
+	"github.com/aruncs31s/gcek_lms_backend/internal/dto"
+	"github.com/aruncs31s/gcek_lms_backend/internal/repository"
 	"github.com/gin-gonic/gin"
 )
 

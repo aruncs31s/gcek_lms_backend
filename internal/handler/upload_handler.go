@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"github.com/aruncs/esdc-lms/internal/handler/upload"
+	"github.com/aruncs31s/gcek_lms_backend/internal/handler/upload"
 	"github.com/gin-gonic/gin"
 )
 

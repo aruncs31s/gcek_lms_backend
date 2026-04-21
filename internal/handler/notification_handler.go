@@ -3,7 +3,7 @@ package handler
 import (
 	"net/http"
 
-	"github.com/aruncs/esdc-lms/internal/service"
+	"github.com/aruncs31s/gcek_lms_backend/internal/service"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )

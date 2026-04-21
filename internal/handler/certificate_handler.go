@@ -6,9 +6,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/aruncs/esdc-lms/internal/dto"
-	"github.com/aruncs/esdc-lms/internal/middleware"
-	"github.com/aruncs/esdc-lms/internal/service"
+	"github.com/aruncs31s/gcek_lms_backend/internal/dto"
+	"github.com/aruncs31s/gcek_lms_backend/internal/middleware"
+	"github.com/aruncs31s/gcek_lms_backend/internal/service"
 	"github.com/gin-gonic/gin"
 )
 

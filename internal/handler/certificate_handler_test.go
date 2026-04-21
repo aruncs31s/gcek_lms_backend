@@ -11,9 +11,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/aruncs/esdc-lms/internal/dto"
-	"github.com/aruncs/esdc-lms/internal/handler"
-	"github.com/aruncs/esdc-lms/internal/middleware"
+	"github.com/aruncs31s/gcek_lms_backend/internal/dto"
+	"github.com/aruncs31s/gcek_lms_backend/internal/handler"
+	"github.com/aruncs31s/gcek_lms_backend/internal/middleware"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -195,15 +195,15 @@ func TestDownloadCertificate_Success(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to get wd: %v", err)
 	}
-	
+
 	// The handler expects it in "uploads/certificates" relative to the server root (where the app runs).
 	// During `go test ./internal/handler/...`, wd is `internal/handler`.
 	uploadsDir := filepath.Join(dir, "..", "..", "uploads", "certificates")
 	_ = os.MkdirAll(uploadsDir, 0755)
-	
+
 	testFileName := "test_download_cert.pdf"
 	testFilePath := filepath.Join(uploadsDir, testFileName)
-	
+
 	// Write dummy content
 	_ = os.WriteFile(testFilePath, []byte("%PDF-1.4 mock content"), 0644)
 	// Clean up after test
@@ -221,13 +221,13 @@ func TestDownloadCertificate_Success(t *testing.T) {
 	if w.Code != http.StatusOK {
 		t.Errorf("Expected 200 OK, got %d", w.Code)
 	}
-	
+
 	contentDisposition := w.Header().Get("Content-Disposition")
 	expectedDisposition := `attachment; filename="Certificate_Advanced_Course.pdf"`
 	if contentDisposition != expectedDisposition {
 		t.Errorf("Expected CD %s, got %s", expectedDisposition, contentDisposition)
 	}
-	
+
 	contentType := w.Header().Get("Content-Type")
 	if contentType != "application/pdf" {
 		t.Errorf("Expected content type application/pdf, got %s", contentType)
